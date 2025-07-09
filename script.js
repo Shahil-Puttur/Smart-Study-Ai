@@ -1,24 +1,25 @@
-document.addEventListener('DOMContentLoaded', () => {
+// This script is primarily for future functionality.
+// The current animations are all handled by CSS for performance.
 
-    const startButton = document.getElementById('startButton');
+document.addEventListener('DOMContentLoaded', () => {
+    const startButton = document.querySelector('.start-button');
 
     if (startButton) {
         startButton.addEventListener('click', () => {
-            // A more professional console log message
-            console.log('Initializing learning session...');
-
-            // Change button text to show feedback
-            startButton.textContent = 'LOADING...';
-            startButton.style.cursor = 'wait';
-
-            // Simulate loading and then show an alert
-            setTimeout(() => {
-                alert('Welcome! Your smart learning buddy is ready.');
-                // Reset button after the action
-                startButton.textContent = 'START';
-                startButton.style.cursor = 'pointer';
-            }, 1500); // 1.5-second delay
+            console.log('Transformation journey started!');
+            alert('Welcome! Let\'s begin your transformation.');
         });
     }
 
+    // A little extra touch: add a class to the panels when they are hovered
+    // to potentially trigger more complex JS animations in the future.
+    const panels = document.querySelectorAll('.panel');
+    panels.forEach(panel => {
+        panel.addEventListener('mouseenter', () => {
+            panel.classList.add('hovering');
+        });
+        panel.addEventListener('mouseleave', () => {
+            panel.classList.remove('hovering');
+        });
+    });
 });
