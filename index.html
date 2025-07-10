@@ -11,38 +11,31 @@
 </head>
 <body>
 
-    <!-- ======== SCREEN 1: THE LANDING PAGE ======== -->
-    <main id="landing-container" class="screen visible">
-        <!-- The "Before" state -->
+    <!-- ======== SCREEN 1: LANDING PAGE ======== -->
+    <main id="landing-container" class="screen">
         <div class="panel before">
             <img src="https://i.ibb.co/R4g1nVMM/file-00000000d01061fb8204df66fb3d3726.png" alt="Struggling student">
             <h2>Studying like this?</h2>
         </div>
-
-        <!-- The "Solution" bridge -->
         <div class="solution-bridge">
             <h1>I'm Smart Teacher AI</h1>
             <p>The learning buddy that transforms your study sessions.</p>
             <button id="getStartedBtn" class="start-button">GET STARTED</button>
         </div>
-
-        <!-- The "After" state -->
         <div class="panel after">
              <img src="https://i.ibb.co/svJmVMJM/file-00000000cf1061f7a4dd88370e943c15.png" alt="Happy student">
             <h2>Start learning like this!</h2>
         </div>
     </main>
 
-    <!-- ======== SCREEN 2: SELECT YOUR TEACHER (Initially Hidden) ======== -->
-    <main id="teacher-select-container" class="screen hidden">
+    <!-- ======== SCREEN 2: SELECT TEACHER (Initially Hidden) ======== -->
+    <main id="teacher-select-container" class="screen" style="display: none;">
         <h2>Select Your Teacher</h2>
         <div class="avatar-selection">
-            <!-- Male Teacher Button -->
             <button class="avatar-button" data-teacher="Male">
                 <img src="https://i.ibb.co/jv4J2wng/file-000000005ea461f5b82ff0c4a296956b.png" alt="Male Teacher Avatar">
                 <span>Male Teacher</span>
             </button>
-            <!-- Female Teacher Button -->
             <button class="avatar-button" data-teacher="Female">
                 <img src="https://i.ibb.co/yFBc8Kdy/file-0000000077c0622fa0cb6448682ebe33.png" alt="Female Teacher Avatar">
                 <span>Female Teacher</span>
@@ -50,10 +43,23 @@
         </div>
     </main>
 
-    <!-- Preload the sound effect for instant playback -->
+    <!-- ======== SCREEN 3: PREPARATION STEP (Initially Hidden) ======== -->
+    <main id="preparation-container" class="screen" style="display: none;">
+        <h2>Preparing the Student</h2>
+        <h3>Step 1: Deep Breathing</h3>
+        <div class="gif-container">
+            <!-- ▼▼▼ YOUR GIF FILENAME IS NOW HERE ▼▼▼ -->
+            <img src="Relaxing.gif" alt="Breathing exercise animation">
+        </div>
+        <button id="nextStepBtn" class="start-button">Next</button>
+    </main>
+
+
+    <!-- Preload sound effects for instant playback -->
     <audio id="click-sound" src="button-click.mp3" preload="auto"></audio>
+    <audio id="relax-sound" src="relax.mp3" preload="auto"></audio>
 
     <script src="script.js"></script>
 
 </body>
-</html>
+        </html>
