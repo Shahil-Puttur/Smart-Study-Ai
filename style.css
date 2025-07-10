@@ -1,106 +1,141 @@
-/* (Keep all previous CSS from :root to the end of @media) */
-
-/* ======== NEW: Q&A Input & Challenge Screen Styling ======== */
-#qa-container, #challenge-container {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    gap: 1.5rem;
-    max-width: 600px;
-    margin: 0 auto;
+:root {
+    --bg-color: #0D101C;
+    --card-bg: rgba(30, 35, 54, 0.5);
+    --card-border: rgba(255, 255, 255, 0.1);
+    --text-primary: #FFFFFF;
+    --text-secondary: #A0A4B8;
+    --accent-color: #38BDF8;
+    --font-family: 'Poppins', sans-serif;
 }
 
-.input-group {
-    width: 100%;
-    display: flex;
-    flex-direction: column;
-    gap: 0.5rem;
+body {
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    min-height: 100vh; margin: 0; padding: 2rem; box-sizing: border-box;
+    background-color: var(--bg-color);
+    background-image: radial-gradient(circle at 10% 20%, rgba(56, 189, 248, 0.1), transparent 30%), radial-gradient(circle at 90% 80%, rgba(56, 189, 248, 0.1), transparent 30%);
+    font-family: var(--font-family); color: var(--text-primary);
 }
 
-.input-group label {
-    font-size: 1rem;
-    font-weight: 600;
-    color: var(--text-secondary);
-    text-align: left;
-}
+.screen { width: 100%; max-width: 1200px; transition: opacity 0.5s ease-out; opacity: 1; }
+#landing-container { display: flex; align-items: center; justify-content: center; gap: 4rem; }
+.screen.fade-out { opacity: 0; }
 
-textarea {
-    width: 100%;
-    padding: 1rem;
-    background-color: var(--card-bg);
-    border: 1px solid var(--card-border);
-    border-radius: 12px;
-    color: var(--text-primary);
-    font-family: var(--font-family);
-    font-size: 1rem;
-    resize: vertical;
+.panel {
+    background: var(--card-bg); border: 1px solid var(--card-border); border-radius: 20px;
+    padding: 1.5rem; text-align: center; width: 300px; backdrop-filter: blur(10px);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
 }
-textarea:focus {
-    outline: none;
+.panel img { width: 100%; border-radius: 12px; margin-bottom: 1rem; }
+.panel h2 { font-size: 1.25rem; font-weight: 600; margin: 0; }
+.solution-bridge {
+    display: flex; flex-direction: column; align-items: center; text-align: center;
+    gap: 1rem; max-width: 350px;
+}
+.solution-bridge h1 { font-size: 2.5rem; font-weight: 700; color: var(--accent-color); margin:0; line-height: 1.2;}
+.solution-bridge p { color: var(--text-secondary); font-size: 1rem; margin: 0; }
+.start-button {
+    background-color: var(--accent-color); color: var(--bg-color); border: none; border-radius: 30px;
+    padding: 1rem 2.5rem; font-family: var(--font-family); font-size: 1rem; font-weight: 700;
+    letter-spacing: 1px; cursor: pointer;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    box-shadow: 0 5px 20px rgba(56, 189, 248, 0.2);
+}
+.start-button:hover { transform: scale(1.05); box-shadow: 0 8px 30px rgba(56, 189, 248, 0.3); }
+
+#teacher-select-container {
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    gap: 3rem; text-align: center;
+}
+#teacher-select-container h2 { font-size: 2.5rem; font-weight: 700; color: var(--accent-color); }
+.avatar-selection { display: flex; gap: 2.5rem; justify-content: center; flex-wrap: wrap; }
+.avatar-button {
+    background: var(--card-bg); border: 2px solid var(--card-border); border-radius: 20px;
+    padding: 1.5rem; cursor: pointer; backdrop-filter: blur(10px);
+    display: flex; flex-direction: column; align-items: center; gap: 1rem;
+    transition: transform 0.3s ease, box-shadow 0.3s ease; width: 220px;
+}
+.avatar-button:hover {
+    transform: translateY(-10px); box-shadow: 0 15px 35px rgba(0, 0, 0, 0.3);
     border-color: var(--accent-color);
 }
+.avatar-button img {
+    width: 150px; height: 150px; object-fit: cover;
+    border-radius: 16px;
+    box-shadow: 0 0 0 3px var(--accent-color);
+}
+.avatar-button span { font-size: 1.2rem; font-weight: 600; color: var(--text-primary); }
+
+#preparation-container {
+    display: flex; flex-direction: column; align-items: center;
+    justify-content: center; gap: 1rem;
+}
+#preparation-container h2 { font-size: 2.5rem; font-weight: 700; margin: 0; }
+#preparation-container h3 { font-size: 1.5rem; font-weight: 400; color: var(--text-secondary); margin: 0; }
+
+.media-container {
+    width: 100%; max-width: 450px; aspect-ratio: 16 / 9;
+    border-radius: 20px; overflow: hidden;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+    border: 2px solid var(--card-border); margin-top: 1rem;
+    background-color: #1E2336;
+}
+.media-container img { width: 100%; height: 100%; object-fit: cover; }
+
+#preparation-container .start-button { margin-top: 2rem; }
+
+.fade-in { animation: fadeInAnimation 0.5s ease-in forwards; }
+@keyframes fadeInAnimation {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+#qa-container, #challenge-container {
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    gap: 1.5rem; max-width: 600px; margin: 0 auto;
+}
+.input-group { width: 100%; display: flex; flex-direction: column; gap: 0.5rem; }
+.input-group label { font-size: 1rem; font-weight: 600; color: var(--text-secondary); text-align: left; }
+textarea {
+    width: 100%; padding: 1rem; background-color: var(--card-bg);
+    border: 1px solid var(--card-border); border-radius: 12px;
+    color: var(--text-primary); font-family: var(--font-family); font-size: 1rem;
+    resize: vertical;
+}
+textarea:focus { outline: none; border-color: var(--accent-color); }
 
 #ttsResultContainer, #challengeResultContainer {
-    width: 100%;
-    text-align: center;
-    margin-top: 1.5rem;
-    padding-top: 1.5rem;
-    border-top: 1px solid var(--card-border);
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 1rem;
+    width: 100%; text-align: center; margin-top: 1.5rem; padding-top: 1.5rem;
+    border-top: 1px solid var(--card-border); display: flex;
+    flex-direction: column; align-items: center; gap: 1rem;
 }
-
-audio {
-    width: 100%;
-    filter: invert(1) grayscale(1) contrast(1.5);
-}
+audio { width: 100%; filter: invert(1) grayscale(1) contrast(1.5); }
 
 .challenge-question-box {
-    width: 100%;
-    padding: 1rem;
-    background: var(--card-bg);
-    border-radius: 12px;
-    text-align: center;
+    width: 100%; padding: 1rem; background: var(--card-bg); border-radius: 12px; text-align: center;
 }
-.challenge-question-box p {
-    margin: 0;
-    color: var(--text-secondary);
-}
-.challenge-question-box h3 {
-    margin: 0.5rem 0 0;
-    font-size: 1.25rem;
-    color: var(--text-primary);
-}
+.challenge-question-box p { margin: 0; color: var(--text-secondary); }
+.challenge-question-box h3 { margin: 0.5rem 0 0; font-size: 1.25rem; color: var(--text-primary); }
 
-/* Result messages */
-#resultMessage.success { color: #4ade80; /* Green */ }
-#resultMessage.error { color: #facc15; /* Yellow/Orange for motivation */ }
+#resultMessage.success { color: #4ade80; }
+#resultMessage.error { color: #facc15; }
 
-/* Util classes */
 .hidden { display: none !important; }
 
-/* Loading Spinner */
 #loading-spinner {
-    position: fixed;
-    top: 0; left: 0;
-    width: 100%; height: 100%;
-    background-color: rgba(0, 0, 0, 0.5);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    z-index: 1000;
+    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+    background-color: rgba(0, 0, 0, 0.5); display: flex;
+    justify-content: center; align-items: center; z-index: 1000;
 }
 .spinner {
-    width: 50px;
-    height: 50px;
-    border: 5px solid var(--card-border);
-    border-top-color: var(--accent-color);
-    border-radius: 50%;
+    width: 50px; height: 50px; border: 5px solid var(--card-border);
+    border-top-color: var(--accent-color); border-radius: 50%;
     animation: spin 1s linear infinite;
 }
-@keyframes spin {
-    to { transform: rotate(360deg); }
+@keyframes spin { to { transform: rotate(360deg); } }
+
+@media (max-width: 900px) {
+    #landing-container { flex-direction: column; gap: 3rem; }
+    .solution-bridge { order: 2; } .panel.before { order: 1; } .panel.after { order: 3; }
+    #teacher-select-container h2, #preparation-container h2 { font-size: 2rem; }
+    .avatar-selection { flex-direction: column; }
     }
