@@ -10,19 +10,17 @@ document.addEventListener('DOMContentLoaded', () => {
     const preparationContainer = document.getElementById('preparation-container');
     const getStartedBtn = document.getElementById('getStartedBtn');
     const avatarButtons = document.querySelectorAll('.avatar-button');
-    const nextStepBtn = document.getElementById('nextStepBtn');
-    // ▼▼▼ RENAMED VARIABLE FROM breathingGif TO breathingImage ▼▼▼
+    const doneBtn = document.getElementById('doneBtn'); // Changed from nextStepBtn
     const breathingImage = document.getElementById('breathingImage');
 
-    // ▼▼▼ UPDATED CACHE-BUSTING FOR THE PNG IMAGE ▼▼▼
+    // Cache-busting for the image to ensure the latest version is loaded
     if (breathingImage) {
-        // Appends a unique timestamp to the image's URL to prevent caching
         breathingImage.src = `relaxing.png?t=${new Date().getTime()}`;
     }
     
     // --- Sound Logic for Standard Buttons ---
     getStartedBtn.addEventListener('click', () => playClickSound());
-    nextStepBtn.addEventListener('click', () => playClickSound());
+    doneBtn.addEventListener('click', () => playClickSound()); // Now targeting doneBtn
 
     function playClickSound() {
         clickSound.currentTime = 0;
@@ -48,13 +46,21 @@ document.addEventListener('DOMContentLoaded', () => {
                 relaxSound.play().catch(e => console.log("Sound play failed:", e));
             }, 2000);
 
+            // Transition to the preparation screen
             transitionTo(preparationContainer, teacherSelectContainer);
+            
+            // ▼▼▼ DELAYED BUTTON LOGIC: Show the button after 8 seconds ▼▼▼
+            setTimeout(() => {
+                doneBtn.style.display = 'inline-block'; // Make it visible
+                doneBtn.classList.add('fade-in'); // Trigger the fade-in animation
+            }, 8000); // 8000 milliseconds = 8 seconds
         });
     });
     
-    // --- Logic for the 'Next' button on the preparation screen ---
-    nextStepBtn.addEventListener('click', () => {
-        alert("Going to Step 2!");
+    // --- Logic for the 'Done' button ---
+    doneBtn.addEventListener('click', () => {
+        alert("Breathing exercise complete! Ready to start the lesson.");
+        // Add logic here to go to the main study screen
     });
 
     // --- Reusable Transition Function ---
