@@ -8,11 +8,18 @@ document.addEventListener('DOMContentLoaded', () => {
     const landingContainer = document.getElementById('landing-container');
     const teacherSelectContainer = document.getElementById('teacher-select-container');
     const preparationContainer = document.getElementById('preparation-container');
-
     const getStartedBtn = document.getElementById('getStartedBtn');
     const avatarButtons = document.querySelectorAll('.avatar-button');
     const nextStepBtn = document.getElementById('nextStepBtn');
+    // ▼▼▼ RENAMED VARIABLE FROM breathingGif TO breathingImage ▼▼▼
+    const breathingImage = document.getElementById('breathingImage');
 
+    // ▼▼▼ UPDATED CACHE-BUSTING FOR THE PNG IMAGE ▼▼▼
+    if (breathingImage) {
+        // Appends a unique timestamp to the image's URL to prevent caching
+        breathingImage.src = `relaxing.png?t=${new Date().getTime()}`;
+    }
+    
     // --- Sound Logic for Standard Buttons ---
     getStartedBtn.addEventListener('click', () => playClickSound());
     nextStepBtn.addEventListener('click', () => playClickSound());
@@ -32,14 +39,15 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- Transition 2: Teacher Select -> Preparation ---
     avatarButtons.forEach(button => {
         button.addEventListener('click', () => {
-            // Play the special relax sound INSTEAD of the click sound
-            relaxSound.currentTime = 0;
-            relaxSound.play().catch(e => console.log("Sound play failed:", e));
-
             const selectedTeacher = button.dataset.teacher;
             console.log(`Selected the ${selectedTeacher} Teacher.`);
 
-            // Transition to the preparation screen
+            // Plays the relax sound after a 2-second delay
+            setTimeout(() => {
+                relaxSound.currentTime = 0;
+                relaxSound.play().catch(e => console.log("Sound play failed:", e));
+            }, 2000);
+
             transitionTo(preparationContainer, teacherSelectContainer);
         });
     });
@@ -47,7 +55,6 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- Logic for the 'Next' button on the preparation screen ---
     nextStepBtn.addEventListener('click', () => {
         alert("Going to Step 2!");
-        // You can add logic here to transition to the next step
     });
 
     // --- Reusable Transition Function ---
@@ -56,12 +63,10 @@ document.addEventListener('DOMContentLoaded', () => {
             currentScreen.classList.add('fade-out');
             setTimeout(() => {
                 currentScreen.style.display = 'none';
-            }, 500); // Wait for fade-out to finish
+            }, 500);
         }
-
         setTimeout(() => {
             nextScreen.style.display = 'flex';
-            // A tiny delay to ensure the 'display' change is registered before changing opacity
             setTimeout(() => {
                 nextScreen.classList.remove('fade-out');
             }, 20);
