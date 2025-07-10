@@ -11,11 +11,11 @@
 </head>
 <body>
 
-    <main class="transformation-container">
+    <!-- ======== SCREEN 1: THE LANDING PAGE ======== -->
+    <main id="landing-container" class="screen visible">
         <!-- The "Before" state -->
         <div class="panel before">
-            <!-- ▼▼▼ YOUR NEW "BEFORE" IMAGE IS HERE ▼▼▼ -->
-            <img src="https://i.ibb.co/R4g1nVMM/file-00000000d01061fb8204df66fb3d3726.png" alt="Struggling student before using the app">
+            <img src="https://i.ibb.co/R4g1nVMM/file-00000000d01061fb8204df66fb3d3726.png" alt="Struggling student">
             <h2>Studying like this?</h2>
         </div>
 
@@ -23,16 +23,35 @@
         <div class="solution-bridge">
             <h1>I'm Smart Teacher AI</h1>
             <p>The learning buddy that transforms your study sessions.</p>
-            <button class="start-button">GET STARTED</button>
+            <button id="getStartedBtn" class="start-button">GET STARTED</button>
         </div>
 
         <!-- The "After" state -->
         <div class="panel after">
-             <!-- ▼▼▼ YOUR NEW "AFTER" IMAGE IS HERE ▼▼▼ -->
-             <img src="https://i.ibb.co/svJmVMJM/file-00000000cf1061f7a4dd88370e943c15.png" alt="Happy student after using the app">
+             <img src="https://i.ibb.co/svJmVMJM/file-00000000cf1061f7a4dd88370e943c15.png" alt="Happy student">
             <h2>Start learning like this!</h2>
         </div>
     </main>
+
+    <!-- ======== SCREEN 2: SELECT YOUR TEACHER (Initially Hidden) ======== -->
+    <main id="teacher-select-container" class="screen hidden">
+        <h2>Select Your Teacher</h2>
+        <div class="avatar-selection">
+            <!-- Male Teacher Button -->
+            <button class="avatar-button" data-teacher="Male">
+                <img src="https://i.ibb.co/jv4J2wng/file-000000005ea461f5b82ff0c4a296956b.png" alt="Male Teacher Avatar">
+                <span>Male Teacher</span>
+            </button>
+            <!-- Female Teacher Button -->
+            <button class="avatar-button" data-teacher="Female">
+                <img src="https://i.ibb.co/yFBc8Kdy/file-0000000077c0622fa0cb6448682ebe33.png" alt="Female Teacher Avatar">
+                <span>Female Teacher</span>
+            </button>
+        </div>
+    </main>
+
+    <!-- Preload the sound effect for instant playback -->
+    <audio id="click-sound" src="button-click.mp3" preload="auto"></audio>
 
     <script src="script.js"></script>
 
