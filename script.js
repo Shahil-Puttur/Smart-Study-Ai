@@ -2,46 +2,69 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- Sound Effect Setup ---
     const clickSound = document.getElementById('click-sound');
-    const allButtons = document.querySelectorAll('button');
+    const relaxSound = document.getElementById('relax-sound');
 
-    // Add sound to EVERY button on the page
-    allButtons.forEach(button => {
-        button.addEventListener('click', () => {
-            // Rewind sound to the beginning to allow for rapid clicks
-            clickSound.currentTime = 0;
-            clickSound.play();
-        });
-    });
-
-    // --- Screen Transition Logic ---
+    // --- Element Selection ---
     const landingContainer = document.getElementById('landing-container');
     const teacherSelectContainer = document.getElementById('teacher-select-container');
-    const getStartedBtn = document.getElementById('getStartedBtn');
+    const preparationContainer = document.getElementById('preparation-container');
 
+    const getStartedBtn = document.getElementById('getStartedBtn');
+    const avatarButtons = document.querySelectorAll('.avatar-button');
+    const nextStepBtn = document.getElementById('nextStepBtn');
+
+    // --- Sound Logic for Standard Buttons ---
+    getStartedBtn.addEventListener('click', () => playClickSound());
+    nextStepBtn.addEventListener('click', () => playClickSound());
+
+    function playClickSound() {
+        clickSound.currentTime = 0;
+        clickSound.play().catch(e => console.log("Sound play failed:", e));
+    }
+
+    // --- Transition 1: Landing -> Teacher Select ---
     if (getStartedBtn) {
         getStartedBtn.addEventListener('click', () => {
-            // 1. Add 'hidden' class to fade out the landing screen
-            landingContainer.classList.remove('visible');
-            landingContainer.classList.add('hidden');
-
-            // 2. After the fade-out animation is done, show the next screen
-            setTimeout(() => {
-                // 3. Add 'visible' to fade in the teacher selection screen
-                teacherSelectContainer.classList.remove('hidden');
-                teacherSelectContainer.classList.add('visible');
-            }, 500); // This time must match the CSS transition duration
+            transitionTo(teacherSelectContainer, landingContainer);
         });
     }
 
-    // --- Teacher Selection Logic ---
-    const avatarButtons = document.querySelectorAll('.avatar-button');
-
+    // --- Transition 2: Teacher Select -> Preparation ---
     avatarButtons.forEach(button => {
         button.addEventListener('click', () => {
+            // Play the special relax sound INSTEAD of the click sound
+            relaxSound.currentTime = 0;
+            relaxSound.play().catch(e => console.log("Sound play failed:", e));
+
             const selectedTeacher = button.dataset.teacher;
-            alert(`You selected the ${selectedTeacher} Teacher! Ready to learn.`);
-            // You can add code here to go to the next page or start the main app
+            console.log(`Selected the ${selectedTeacher} Teacher.`);
+
+            // Transition to the preparation screen
+            transitionTo(preparationContainer, teacherSelectContainer);
         });
     });
+    
+    // --- Logic for the 'Next' button on the preparation screen ---
+    nextStepBtn.addEventListener('click', () => {
+        alert("Going to Step 2!");
+        // You can add logic here to transition to the next step
+    });
 
+    // --- Reusable Transition Function ---
+    function transitionTo(nextScreen, currentScreen) {
+        if (currentScreen) {
+            currentScreen.classList.add('fade-out');
+            setTimeout(() => {
+                currentScreen.style.display = 'none';
+            }, 500); // Wait for fade-out to finish
+        }
+
+        setTimeout(() => {
+            nextScreen.style.display = 'flex';
+            // A tiny delay to ensure the 'display' change is registered before changing opacity
+            setTimeout(() => {
+                nextScreen.classList.remove('fade-out');
+            }, 20);
+        }, currentScreen ? 500 : 0);
+    }
 });
