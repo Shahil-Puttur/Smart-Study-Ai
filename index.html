@@ -11,15 +11,46 @@
 </head>
 <body>
 
-    <!-- ======== All Previous Screens ======== -->
+    <!-- ======== SCREEN 1: LANDING PAGE ======== -->
     <main id="landing-container" class="screen">
-        <!-- (Landing page content is here, no changes) -->
+        <div class="panel before">
+            <img src="https://i.ibb.co/R4g1nVMM/file-00000000d01061fb8204df66fb3d3726.png" alt="Struggling student">
+            <h2>Studying like this?</h2>
+        </div>
+        <div class="solution-bridge">
+            <h1>I'm Smart Teacher AI</h1>
+            <p>The learning buddy that transforms your study sessions.</p>
+            <button id="getStartedBtn" class="start-button">GET STARTED</button>
+        </div>
+        <div class="panel after">
+             <img src="https://i.ibb.co/svJmVMJM/file-00000000cf1061f7a4dd88370e943c15.png" alt="Happy student">
+            <h2>Start learning like this!</h2>
+        </div>
     </main>
+
+    <!-- ======== SCREEN 2: SELECT TEACHER (Initially Hidden) ======== -->
     <main id="teacher-select-container" class="screen" style="display: none;">
-        <!-- (Teacher select content is here, no changes) -->
+        <h2>Select Your Teacher</h2>
+        <div class="avatar-selection">
+            <button class="avatar-button" data-teacher="Male">
+                <img src="https://i.ibb.co/jv4J2wng/file-000000005ea461f5b82ff0c4a296956b.png" alt="Male Teacher Avatar">
+                <span>Male Teacher</span>
+            </button>
+            <button class="avatar-button" data-teacher="Female">
+                <img src="https://i.ibb.co/yFBc8Kdy/file-0000000077c0622fa0cb6448682ebe33.png" alt="Female Teacher Avatar">
+                <span>Female Teacher</span>
+            </button>
+        </div>
     </main>
+
+    <!-- ======== SCREEN 3: PREPARATION STEP (Initially Hidden) ======== -->
     <main id="preparation-container" class="screen" style="display: none;">
-        <!-- (Preparation content is here, no changes) -->
+        <h2>Preparing the Student</h2>
+        <h3>Step 1: Deep Breathing</h3>
+        <div class="media-container">
+            <img src="relaxing.png" alt="Relaxing image for deep breathing" id="breathingImage">
+        </div>
+        <button id="doneBtn" class="start-button" style="display: none;">Done ✅</button>
     </main>
 
     <!-- ======== SCREEN 4: Q&A INPUT (New) ======== -->
@@ -34,8 +65,6 @@
             <textarea id="answerInput" rows="5" placeholder="e.g., Tokyo"></textarea>
         </div>
         <button id="generateBtn" class="start-button">Generate Audio</button>
-        
-        <!-- This section appears after generating audio -->
         <div id="ttsResultContainer" class="hidden">
             <p>Listen to your answer:</p>
             <audio id="audioPlayer" controls></audio>
@@ -55,8 +84,6 @@
             <textarea id="userAnswerInput" rows="5" placeholder="Recall the answer here..."></textarea>
         </div>
         <button id="checkAnswerBtn" class="start-button">Check Answer</button>
-
-        <!-- This section shows the result of the challenge -->
         <div id="challengeResultContainer" class="hidden">
             <p id="resultMessage"></p>
             <button id="nextQuestionBtn" class="start-button hidden">Next Question</button>
@@ -75,4 +102,4 @@
 
     <script src="script.js"></script>
 </body>
-        </html>
+</html>
