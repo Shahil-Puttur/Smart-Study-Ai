@@ -3,165 +3,177 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- State Management & Backend URL ---
     let currentQuestion = '';
     let currentAnswer = '';
-    
-    // ▼▼▼ THIS IS THE ONLY LINE WE CHANGED ▼▼▼
-    // The new, live address of your backend server on Render!
-    const BACKEND_URL = 'https://smart-study-ai.onrender.com'; 
-    // ▲▲▲ THIS IS THE ONLY LINE WE CHANGED ▲▲▲
+    const BACKEND_URL = 'https://smart-study-ai.onrender.com';
 
     // --- Sound Effect Setup ---
     const clickSound = document.getElementById('click-sound');
     const relaxSound = document.getElementById('relax-sound');
 
-    // --- Element Selection (all screens) ---
-    const getStartedBtn = document.getElementById('getStartedBtn');
-    const landingContainer = document.getElementById('landing-container');
-    const teacherSelectContainer = document.getElementById('teacher-select-container');
-    const preparationContainer = document.getElementById('preparation-container');
-    const avatarButtons = document.querySelectorAll('.avatar-button');
-    const doneBtn = document.getElementById('doneBtn');
-    const breathingImage = document.getElementById('breathingImage');
-    const qaContainer = document.getElementById('qa-container');
-    const questionInput = document.getElementById('questionInput');
-    const answerInput = document.getElementById('answerInput');
-    const generateBtn = document.getElementById('generateBtn');
-    const ttsResultContainer = document.getElementById('ttsResultContainer');
-    const audioPlayer = document.getElementById('audioPlayer');
-    const challengeBtn = document.getElementById('challengeBtn');
-    const challengeContainer = document.getElementById('challenge-container');
-    const displayQuestion = document.getElementById('displayQuestion');
-    const userAnswerInput = document.getElementById('userAnswerInput');
-    const checkAnswerBtn = document.getElementById('checkAnswerBtn');
-    const challengeResultContainer = document.getElementById('challengeResultContainer');
-    const resultMessage = document.getElementById('resultMessage');
-    const nextQuestionBtn = document.getElementById('nextQuestionBtn');
-    const tryAgainBtn = document.getElementById('tryAgainBtn');
-    const loadingSpinner = document.getElementById('loading-spinner');
+    // --- Element Selection ---
+    // This is a safer way to get elements, preventing crashes if an ID is wrong.
+    const getElement = (id) => document.getElementById(id);
     
-    // --- Initial Setup ---
+    const landingContainer = getElement('landing-container');
+    const teacherSelectContainer = getElement('teacher-select-container');
+    const preparationContainer = getElement('preparation-container');
+    const qaContainer = getElement('qa-container');
+    const challengeContainer = getElement('challenge-container');
+    const loadingSpinner = getElement('loading-spinner');
+
+    const getStartedBtn = getElement('getStartedBtn');
+    const avatarButtons = document.querySelectorAll('.avatar-button');
+    const doneBtn = getElement('doneBtn');
+    const breathingImage = getElement('breathingImage');
+    
+    const questionInput = getElement('questionInput');
+    const answerInput = getElement('answerInput');
+    const generateBtn = getElement('generateBtn');
+    
+    const ttsResultContainer = getElement('ttsResultContainer');
+    const audioPlayer = getElement('audioPlayer');
+    const challengeBtn = getElement('challengeBtn');
+
+    const displayQuestion = getElement('displayQuestion');
+    const userAnswerInput = getElement('userAnswerInput');
+    const checkAnswerBtn = getElement('checkAnswerBtn');
+    
+    const challengeResultContainer = getElement('challengeResultContainer');
+    const resultMessage = getElement('resultMessage');
+    const nextQuestionBtn = getElement('nextQuestionBtn');
+    const tryAgainBtn = getElement('tryAgainBtn');
+
+    // --- Initial Setup & Event Listeners ---
     if (breathingImage) {
         breathingImage.src = `relaxing.png?t=${new Date().getTime()}`;
     }
 
-    // --- Sound Logic ---
-    getStartedBtn.addEventListener('click', () => playClickSound());
-    doneBtn.addEventListener('click', () => playClickSound());
-    generateBtn.addEventListener('click', () => playClickSound());
-    challengeBtn.addEventListener('click', () => playClickSound());
-    checkAnswerBtn.addEventListener('click', () => playClickSound());
-    nextQuestionBtn.addEventListener('click', () => playClickSound());
-    tryAgainBtn.addEventListener('click', () => playClickSound());
+    const addClickSound = (element) => {
+        if (element) element.addEventListener('click', playClickSound);
+    };
+
+    [getStartedBtn, doneBtn, generateBtn, challengeBtn, checkAnswerBtn, nextQuestionBtn, tryAgainBtn].forEach(addClickSound);
 
     function playClickSound() {
-        clickSound.currentTime = 0;
-        clickSound.play().catch(e => console.log("Sound play failed:", e));
+        if (clickSound) {
+            clickSound.currentTime = 0;
+            clickSound.play().catch(e => console.log("Sound play failed:", e));
+        }
     }
 
-    // --- Screen Transition Logic (from the beginning) ---
     if (getStartedBtn) {
         getStartedBtn.addEventListener('click', () => transitionTo(teacherSelectContainer, landingContainer));
     }
+    
     avatarButtons.forEach(button => {
         button.addEventListener('click', () => {
             setTimeout(() => {
-                relaxSound.currentTime = 0;
-                relaxSound.play().catch(e => console.log("Sound play failed:", e));
+                if(relaxSound) {
+                    relaxSound.currentTime = 0;
+                    relaxSound.play().catch(e => console.log("Sound play failed:", e));
+                }
             }, 2000);
             transitionTo(preparationContainer, teacherSelectContainer);
             setTimeout(() => {
-                doneBtn.style.display = 'inline-block';
-                doneBtn.classList.add('fade-in');
+                if(doneBtn) {
+                    doneBtn.style.display = 'inline-block';
+                    doneBtn.classList.add('fade-in');
+                }
             }, 8000);
         });
     });
-    doneBtn.addEventListener('click', () => transitionTo(qaContainer, preparationContainer));
+    
+    if (doneBtn) {
+        doneBtn.addEventListener('click', () => transitionTo(qaContainer, preparationContainer));
+    }
+    
+    if (generateBtn) {
+        generateBtn.addEventListener('click', async () => {
+            const questionText = questionInput.value.trim();
+            const answerText = answerInput.value.trim();
 
-    // --- Generate Audio Button Logic ---
-    generateBtn.addEventListener('click', async () => {
-        const questionText = questionInput.value.trim();
-        const answerText = answerInput.value.trim();
-
-        if (!questionText || !answerText) {
-            alert('Please enter both a question and an answer.');
-            return;
-        }
-        
-        showLoadingSpinner(true);
-
-        try {
-            // This now calls your LIVE Render backend URL
-            const response = await fetch(`${BACKEND_URL}/generate-tts`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ text: answerText })
-            });
-
-            if (!response.ok) {
-                const errorData = await response.json();
-                throw new Error(errorData.error || 'Failed to generate audio.');
+            if (!questionText || !answerText) {
+                alert('Please enter both a question and an answer.');
+                return;
             }
-
-            const data = await response.json();
-            audioPlayer.src = data.audio_url;
             
-            currentQuestion = questionText;
-            currentAnswer = answerText;
+            showLoadingSpinner(true);
 
-            ttsResultContainer.classList.remove('hidden');
+            try {
+                const response = await fetch(`${BACKEND_URL}/generate-tts`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ text: answerText })
+                });
 
-        } catch (error) {
-            console.error('Error:', error);
-            alert(`Sorry, there was an error: ${error.message}`);
-        } finally {
-            showLoadingSpinner(false);
-        }
-    });
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.error || 'Failed to generate audio.');
+                }
 
-    // --- Challenge & Answer Check Logic ---
-    challengeBtn.addEventListener('click', () => {
-        displayQuestion.textContent = currentQuestion;
-        userAnswerInput.value = '';
-        challengeResultContainer.classList.add('hidden');
-        nextQuestionBtn.classList.add('hidden');
-        tryAgainBtn.classList.add('hidden');
-        transitionTo(challengeContainer, qaContainer);
-    });
+                const data = await response.json();
+                audioPlayer.src = data.audio_url;
+                
+                currentQuestion = questionText;
+                currentAnswer = answerText;
 
-    checkAnswerBtn.addEventListener('click', () => {
-        const userAnswer = userAnswerInput.value.trim().toLowerCase();
-        const correctAnswer = currentAnswer.trim().toLowerCase();
+                ttsResultContainer.classList.remove('hidden');
 
-        challengeResultContainer.classList.remove('hidden');
-
-        if (userAnswer === correctAnswer) {
-            resultMessage.textContent = "You're a genius! Perfect recall! 🎉";
-            resultMessage.className = 'success';
-            nextQuestionBtn.classList.remove('hidden');
-            tryAgainBtn.classList.add('hidden');
-        } else {
-            resultMessage.textContent = "Good try, you're almost there! Let's go again. 💪";
-            resultMessage.className = 'error';
-            tryAgainBtn.classList.remove('hidden');
+            } catch (error) {
+                console.error('Error:', error);
+                alert(`Sorry, there was an error: ${error.message}`);
+            } finally {
+                showLoadingSpinner(false);
+            }
+        });
+    }
+    
+    if (challengeBtn) {
+        challengeBtn.addEventListener('click', () => {
+            displayQuestion.textContent = currentQuestion;
+            userAnswerInput.value = '';
+            challengeResultContainer.classList.add('hidden');
             nextQuestionBtn.classList.add('hidden');
-        }
-    });
+            tryAgainBtn.classList.add('hidden');
+            transitionTo(challengeContainer, qaContainer);
+        });
+    }
 
-    tryAgainBtn.addEventListener('click', () => {
+    if (checkAnswerBtn) {
+        checkAnswerBtn.addEventListener('click', () => {
+            const userAnswer = userAnswerInput.value.trim().toLowerCase();
+            const correctAnswer = currentAnswer.trim().toLowerCase();
+
+            challengeResultContainer.classList.remove('hidden');
+
+            if (userAnswer === correctAnswer) {
+                resultMessage.textContent = "You're a genius! Perfect recall! 🎉";
+                resultMessage.className = 'success';
+                nextQuestionBtn.classList.remove('hidden');
+                tryAgainBtn.classList.add('hidden');
+            } else {
+                resultMessage.textContent = "Good try, you're almost there! Let's go again. 💪";
+                resultMessage.className = 'error';
+                tryAgainBtn.classList.remove('hidden');
+                nextQuestionBtn.classList.add('hidden');
+            }
+        });
+    }
+
+    if(tryAgainBtn) tryAgainBtn.addEventListener('click', () => {
         userAnswerInput.value = '';
         userAnswerInput.focus();
         challengeResultContainer.classList.add('hidden');
     });
 
-    nextQuestionBtn.addEventListener('click', () => {
+    if(nextQuestionBtn) nextQuestionBtn.addEventListener('click', () => {
         questionInput.value = '';
         answerInput.value = '';
         ttsResultContainer.classList.add('hidden');
         transitionTo(qaContainer, challengeContainer);
     });
     
-    // --- Helper Functions ---
     function showLoadingSpinner(show) {
-        loadingSpinner.classList.toggle('hidden', !show);
+        if(loadingSpinner) loadingSpinner.classList.toggle('hidden', !show);
     }
     
     function transitionTo(nextScreen, currentScreen) {
@@ -171,14 +183,13 @@ document.addEventListener('DOMContentLoaded', () => {
                 currentScreen.style.display = 'none';
             }, 500);
         }
-        setTimeout(() => {
-            // Find the right display type for the screen
-            const isFlex = nextScreen.id !== 'landing-container';
-            nextScreen.style.display = isFlex ? 'flex' : 'block'; 
-            
+        if (nextScreen) {
             setTimeout(() => {
-                nextScreen.classList.remove('fade-out');
-            }, 20);
-        }, currentScreen ? 500 : 0);
+                nextScreen.style.display = 'flex';
+                setTimeout(() => {
+                    nextScreen.classList.remove('fade-out');
+                }, 20);
+            }, currentScreen ? 500 : 0);
+        }
     }
 });
