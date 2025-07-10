@@ -1,15 +1,26 @@
 document.addEventListener('DOMContentLoaded', () => {
 
-    // --- State Management ---
+    // --- State Management & Backend URL ---
     let currentQuestion = '';
     let currentAnswer = '';
-    // IMPORTANT: Change this to your Render URL when you deploy!
-    const BACKEND_URL = 'http://127.0.0.1:5000'; 
+    
+    // ▼▼▼ THIS IS THE ONLY LINE WE CHANGED ▼▼▼
+    // The new, live address of your backend server on Render!
+    const BACKEND_URL = 'https://smart-study-ai.onrender.com'; 
+    // ▲▲▲ THIS IS THE ONLY LINE WE CHANGED ▲▲▲
+
+    // --- Sound Effect Setup ---
+    const clickSound = document.getElementById('click-sound');
+    const relaxSound = document.getElementById('relax-sound');
 
     // --- Element Selection (all screens) ---
-    const allScreens = document.querySelectorAll('.screen');
     const getStartedBtn = document.getElementById('getStartedBtn');
-    // ... (other old selectors)
+    const landingContainer = document.getElementById('landing-container');
+    const teacherSelectContainer = document.getElementById('teacher-select-container');
+    const preparationContainer = document.getElementById('preparation-container');
+    const avatarButtons = document.querySelectorAll('.avatar-button');
+    const doneBtn = document.getElementById('doneBtn');
+    const breathingImage = document.getElementById('breathingImage');
     const qaContainer = document.getElementById('qa-container');
     const questionInput = document.getElementById('questionInput');
     const answerInput = document.getElementById('answerInput');
@@ -26,13 +37,44 @@ document.addEventListener('DOMContentLoaded', () => {
     const nextQuestionBtn = document.getElementById('nextQuestionBtn');
     const tryAgainBtn = document.getElementById('tryAgainBtn');
     const loadingSpinner = document.getElementById('loading-spinner');
-
-    // ... (All previous sound logic and event listeners for the first 3 screens remain the same)
     
-    // --- Event Listener for the "Done" button on the prep screen ---
-    doneBtn.addEventListener('click', () => {
-        transitionTo(qaContainer, preparationContainer);
+    // --- Initial Setup ---
+    if (breathingImage) {
+        breathingImage.src = `relaxing.png?t=${new Date().getTime()}`;
+    }
+
+    // --- Sound Logic ---
+    getStartedBtn.addEventListener('click', () => playClickSound());
+    doneBtn.addEventListener('click', () => playClickSound());
+    generateBtn.addEventListener('click', () => playClickSound());
+    challengeBtn.addEventListener('click', () => playClickSound());
+    checkAnswerBtn.addEventListener('click', () => playClickSound());
+    nextQuestionBtn.addEventListener('click', () => playClickSound());
+    tryAgainBtn.addEventListener('click', () => playClickSound());
+
+    function playClickSound() {
+        clickSound.currentTime = 0;
+        clickSound.play().catch(e => console.log("Sound play failed:", e));
+    }
+
+    // --- Screen Transition Logic (from the beginning) ---
+    if (getStartedBtn) {
+        getStartedBtn.addEventListener('click', () => transitionTo(teacherSelectContainer, landingContainer));
+    }
+    avatarButtons.forEach(button => {
+        button.addEventListener('click', () => {
+            setTimeout(() => {
+                relaxSound.currentTime = 0;
+                relaxSound.play().catch(e => console.log("Sound play failed:", e));
+            }, 2000);
+            transitionTo(preparationContainer, teacherSelectContainer);
+            setTimeout(() => {
+                doneBtn.style.display = 'inline-block';
+                doneBtn.classList.add('fade-in');
+            }, 8000);
+        });
     });
+    doneBtn.addEventListener('click', () => transitionTo(qaContainer, preparationContainer));
 
     // --- Generate Audio Button Logic ---
     generateBtn.addEventListener('click', async () => {
@@ -47,6 +89,7 @@ document.addEventListener('DOMContentLoaded', () => {
         showLoadingSpinner(true);
 
         try {
+            // This now calls your LIVE Render backend URL
             const response = await fetch(`${BACKEND_URL}/generate-tts`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -54,13 +97,13 @@ document.addEventListener('DOMContentLoaded', () => {
             });
 
             if (!response.ok) {
-                throw new Error('Failed to generate audio.');
+                const errorData = await response.json();
+                throw new Error(errorData.error || 'Failed to generate audio.');
             }
 
             const data = await response.json();
             audioPlayer.src = data.audio_url;
             
-            // Store for the challenge
             currentQuestion = questionText;
             currentAnswer = answerText;
 
@@ -68,23 +111,22 @@ document.addEventListener('DOMContentLoaded', () => {
 
         } catch (error) {
             console.error('Error:', error);
-            alert('Sorry, there was an error generating the audio. Please try again.');
+            alert(`Sorry, there was an error: ${error.message}`);
         } finally {
             showLoadingSpinner(false);
         }
     });
 
-    // --- Challenge Me! Button Logic ---
+    // --- Challenge & Answer Check Logic ---
     challengeBtn.addEventListener('click', () => {
         displayQuestion.textContent = currentQuestion;
-        userAnswerInput.value = ''; // Clear previous attempts
-        challengeResultContainer.classList.add('hidden'); // Hide old results
+        userAnswerInput.value = '';
+        challengeResultContainer.classList.add('hidden');
         nextQuestionBtn.classList.add('hidden');
         tryAgainBtn.classList.add('hidden');
         transitionTo(challengeContainer, qaContainer);
     });
 
-    // --- Check Answer Button Logic ---
     checkAnswerBtn.addEventListener('click', () => {
         const userAnswer = userAnswerInput.value.trim().toLowerCase();
         const correctAnswer = currentAnswer.trim().toLowerCase();
@@ -104,7 +146,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // --- Try Again & Next Question Logic ---
     tryAgainBtn.addEventListener('click', () => {
         userAnswerInput.value = '';
         userAnswerInput.focus();
@@ -112,7 +153,6 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     nextQuestionBtn.addEventListener('click', () => {
-        // Reset the Q&A form for a new card
         questionInput.value = '';
         answerInput.value = '';
         ttsResultContainer.classList.add('hidden');
@@ -124,5 +164,21 @@ document.addEventListener('DOMContentLoaded', () => {
         loadingSpinner.classList.toggle('hidden', !show);
     }
     
-    // (The reusable transitionTo function remains the same)
+    function transitionTo(nextScreen, currentScreen) {
+        if (currentScreen) {
+            currentScreen.classList.add('fade-out');
+            setTimeout(() => {
+                currentScreen.style.display = 'none';
+            }, 500);
+        }
+        setTimeout(() => {
+            // Find the right display type for the screen
+            const isFlex = nextScreen.id !== 'landing-container';
+            nextScreen.style.display = isFlex ? 'flex' : 'block'; 
+            
+            setTimeout(() => {
+                nextScreen.classList.remove('fade-out');
+            }, 20);
+        }, currentScreen ? 500 : 0);
+    }
 });
