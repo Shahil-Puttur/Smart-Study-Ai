@@ -1,81 +1,128 @@
 document.addEventListener('DOMContentLoaded', () => {
 
-    // --- Sound Effect Setup ---
-    const clickSound = document.getElementById('click-sound');
-    const relaxSound = document.getElementById('relax-sound');
+    // --- State Management ---
+    let currentQuestion = '';
+    let currentAnswer = '';
+    // IMPORTANT: Change this to your Render URL when you deploy!
+    const BACKEND_URL = 'http://127.0.0.1:5000'; 
 
-    // --- Element Selection ---
-    const landingContainer = document.getElementById('landing-container');
-    const teacherSelectContainer = document.getElementById('teacher-select-container');
-    const preparationContainer = document.getElementById('preparation-container');
+    // --- Element Selection (all screens) ---
+    const allScreens = document.querySelectorAll('.screen');
     const getStartedBtn = document.getElementById('getStartedBtn');
-    const avatarButtons = document.querySelectorAll('.avatar-button');
-    const doneBtn = document.getElementById('doneBtn'); // Changed from nextStepBtn
-    const breathingImage = document.getElementById('breathingImage');
+    // ... (other old selectors)
+    const qaContainer = document.getElementById('qa-container');
+    const questionInput = document.getElementById('questionInput');
+    const answerInput = document.getElementById('answerInput');
+    const generateBtn = document.getElementById('generateBtn');
+    const ttsResultContainer = document.getElementById('ttsResultContainer');
+    const audioPlayer = document.getElementById('audioPlayer');
+    const challengeBtn = document.getElementById('challengeBtn');
+    const challengeContainer = document.getElementById('challenge-container');
+    const displayQuestion = document.getElementById('displayQuestion');
+    const userAnswerInput = document.getElementById('userAnswerInput');
+    const checkAnswerBtn = document.getElementById('checkAnswerBtn');
+    const challengeResultContainer = document.getElementById('challengeResultContainer');
+    const resultMessage = document.getElementById('resultMessage');
+    const nextQuestionBtn = document.getElementById('nextQuestionBtn');
+    const tryAgainBtn = document.getElementById('tryAgainBtn');
+    const loadingSpinner = document.getElementById('loading-spinner');
 
-    // Cache-busting for the image to ensure the latest version is loaded
-    if (breathingImage) {
-        breathingImage.src = `relaxing.png?t=${new Date().getTime()}`;
-    }
+    // ... (All previous sound logic and event listeners for the first 3 screens remain the same)
     
-    // --- Sound Logic for Standard Buttons ---
-    getStartedBtn.addEventListener('click', () => playClickSound());
-    doneBtn.addEventListener('click', () => playClickSound()); // Now targeting doneBtn
-
-    function playClickSound() {
-        clickSound.currentTime = 0;
-        clickSound.play().catch(e => console.log("Sound play failed:", e));
-    }
-
-    // --- Transition 1: Landing -> Teacher Select ---
-    if (getStartedBtn) {
-        getStartedBtn.addEventListener('click', () => {
-            transitionTo(teacherSelectContainer, landingContainer);
-        });
-    }
-
-    // --- Transition 2: Teacher Select -> Preparation ---
-    avatarButtons.forEach(button => {
-        button.addEventListener('click', () => {
-            const selectedTeacher = button.dataset.teacher;
-            console.log(`Selected the ${selectedTeacher} Teacher.`);
-
-            // Plays the relax sound after a 2-second delay
-            setTimeout(() => {
-                relaxSound.currentTime = 0;
-                relaxSound.play().catch(e => console.log("Sound play failed:", e));
-            }, 2000);
-
-            // Transition to the preparation screen
-            transitionTo(preparationContainer, teacherSelectContainer);
-            
-            // ▼▼▼ DELAYED BUTTON LOGIC: Show the button after 8 seconds ▼▼▼
-            setTimeout(() => {
-                doneBtn.style.display = 'inline-block'; // Make it visible
-                doneBtn.classList.add('fade-in'); // Trigger the fade-in animation
-            }, 8000); // 8000 milliseconds = 8 seconds
-        });
-    });
-    
-    // --- Logic for the 'Done' button ---
+    // --- Event Listener for the "Done" button on the prep screen ---
     doneBtn.addEventListener('click', () => {
-        alert("Breathing exercise complete! Ready to start the lesson.");
-        // Add logic here to go to the main study screen
+        transitionTo(qaContainer, preparationContainer);
     });
 
-    // --- Reusable Transition Function ---
-    function transitionTo(nextScreen, currentScreen) {
-        if (currentScreen) {
-            currentScreen.classList.add('fade-out');
-            setTimeout(() => {
-                currentScreen.style.display = 'none';
-            }, 500);
+    // --- Generate Audio Button Logic ---
+    generateBtn.addEventListener('click', async () => {
+        const questionText = questionInput.value.trim();
+        const answerText = answerInput.value.trim();
+
+        if (!questionText || !answerText) {
+            alert('Please enter both a question and an answer.');
+            return;
         }
-        setTimeout(() => {
-            nextScreen.style.display = 'flex';
-            setTimeout(() => {
-                nextScreen.classList.remove('fade-out');
-            }, 20);
-        }, currentScreen ? 500 : 0);
+        
+        showLoadingSpinner(true);
+
+        try {
+            const response = await fetch(`${BACKEND_URL}/generate-tts`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ text: answerText })
+            });
+
+            if (!response.ok) {
+                throw new Error('Failed to generate audio.');
+            }
+
+            const data = await response.json();
+            audioPlayer.src = data.audio_url;
+            
+            // Store for the challenge
+            currentQuestion = questionText;
+            currentAnswer = answerText;
+
+            ttsResultContainer.classList.remove('hidden');
+
+        } catch (error) {
+            console.error('Error:', error);
+            alert('Sorry, there was an error generating the audio. Please try again.');
+        } finally {
+            showLoadingSpinner(false);
+        }
+    });
+
+    // --- Challenge Me! Button Logic ---
+    challengeBtn.addEventListener('click', () => {
+        displayQuestion.textContent = currentQuestion;
+        userAnswerInput.value = ''; // Clear previous attempts
+        challengeResultContainer.classList.add('hidden'); // Hide old results
+        nextQuestionBtn.classList.add('hidden');
+        tryAgainBtn.classList.add('hidden');
+        transitionTo(challengeContainer, qaContainer);
+    });
+
+    // --- Check Answer Button Logic ---
+    checkAnswerBtn.addEventListener('click', () => {
+        const userAnswer = userAnswerInput.value.trim().toLowerCase();
+        const correctAnswer = currentAnswer.trim().toLowerCase();
+
+        challengeResultContainer.classList.remove('hidden');
+
+        if (userAnswer === correctAnswer) {
+            resultMessage.textContent = "You're a genius! Perfect recall! 🎉";
+            resultMessage.className = 'success';
+            nextQuestionBtn.classList.remove('hidden');
+            tryAgainBtn.classList.add('hidden');
+        } else {
+            resultMessage.textContent = "Good try, you're almost there! Let's go again. 💪";
+            resultMessage.className = 'error';
+            tryAgainBtn.classList.remove('hidden');
+            nextQuestionBtn.classList.add('hidden');
+        }
+    });
+
+    // --- Try Again & Next Question Logic ---
+    tryAgainBtn.addEventListener('click', () => {
+        userAnswerInput.value = '';
+        userAnswerInput.focus();
+        challengeResultContainer.classList.add('hidden');
+    });
+
+    nextQuestionBtn.addEventListener('click', () => {
+        // Reset the Q&A form for a new card
+        questionInput.value = '';
+        answerInput.value = '';
+        ttsResultContainer.classList.add('hidden');
+        transitionTo(qaContainer, challengeContainer);
+    });
+    
+    // --- Helper Functions ---
+    function showLoadingSpinner(show) {
+        loadingSpinner.classList.toggle('hidden', !show);
     }
+    
+    // (The reusable transitionTo function remains the same)
 });
