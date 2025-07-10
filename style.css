@@ -4,7 +4,7 @@
     --card-border: rgba(255, 255, 255, 0.1);
     --text-primary: #FFFFFF;
     --text-secondary: #A0A4B8;
-    --accent-color: #38BDF8; /* A bright, hopeful blue */
+    --accent-color: #38BDF8;
     --font-family: 'Poppins', sans-serif;
 }
 
@@ -18,27 +18,37 @@ body {
                       radial-gradient(circle at 90% 80%, rgba(56, 189, 248, 0.1), transparent 30%);
     font-family: var(--font-family);
     color: var(--text-primary);
-    overflow-x: hidden;
+    overflow: hidden; /* Prevent layout shifts during transitions */
 }
 
-.transformation-container {
+/* --- Screen Management & Transitions --- */
+.screen {
+    width: 100%;
+    max-width: 1200px;
+    padding: 2rem;
+    position: absolute; /* Allows screens to stack */
+    transition: opacity 0.5s ease-out, transform 0.5s ease-out;
+}
+
+#landing-container {
     display: flex;
     align-items: center;
     justify-content: center;
     gap: 4rem;
-    padding: 2rem;
-    width: 100%;
-    max-width: 1200px;
-    position: relative;
+}
+
+.screen.hidden {
     opacity: 0;
-    animation: fadeInContainer 1s 0.2s ease-out forwards;
+    transform: translateY(20px);
+    pointer-events: none; /* Make hidden screen unclickable */
 }
 
-@keyframes fadeInContainer {
-    to { opacity: 1; }
+.screen.visible {
+    opacity: 1;
+    transform: translateY(0);
 }
 
-/* --- The "Before" and "After" Panels --- */
+/* --- Panel Styling (from before) --- */
 .panel {
     background: var(--card-bg);
     border: 1px solid var(--card-border);
@@ -48,98 +58,91 @@ body {
     width: 300px;
     backdrop-filter: blur(10px);
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
-    transform: translateY(20px);
-    opacity: 0;
-    animation: slideUpFadeIn 0.8s ease-out forwards;
 }
-
-.panel.before { animation-delay: 0.5s; }
-.panel.after { animation-delay: 0.9s; }
-
-@keyframes slideUpFadeIn {
-    to {
-        transform: translateY(0);
-        opacity: 1;
-    }
-}
-
-.panel:hover {
-    transform: translateY(-10px);
-    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
-}
-
 .panel img {
     width: 100%;
     border-radius: 12px;
     margin-bottom: 1rem;
-    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
 }
+.panel h2 { font-size: 1.25rem; font-weight: 600; margin: 0; }
 
-.panel h2 {
-    font-size: 1.25rem;
-    font-weight: 600;
-    margin: 0;
-}
-
-/* --- The Central Solution --- */
+/* --- Solution Bridge (from before) --- */
 .solution-bridge {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    text-align: center;
-    gap: 1rem;
-    max-width: 350px;
-    transform: translateY(20px);
-    opacity: 0;
-    animation: slideUpFadeIn 0.8s 0.7s ease-out forwards;
+    display: flex; flex-direction: column; align-items: center; text-align: center;
+    gap: 1rem; max-width: 350px;
 }
-
-.solution-bridge h1 {
-    font-size: 2.5rem;
-    font-weight: 700;
-    line-height: 1.2;
-    margin: 0;
-    color: var(--accent-color);
-}
-
-.solution-bridge p {
-    color: var(--text-secondary);
-    font-size: 1rem;
-    margin: 0;
-}
-
+.solution-bridge h1 { font-size: 2.5rem; font-weight: 700; line-height: 1.2; margin: 0; color: var(--accent-color); }
+.solution-bridge p { color: var(--text-secondary); font-size: 1rem; margin: 0; }
 .start-button {
-    background-color: var(--accent-color);
-    color: var(--bg-color);
-    border: none;
-    border-radius: 30px;
-    padding: 1rem 2.5rem;
-    font-family: var(--font-family);
-    font-size: 1rem;
-    font-weight: 700;
-    letter-spacing: 1px;
-    cursor: pointer;
-    margin-top: 1rem;
+    background-color: var(--accent-color); color: var(--bg-color); border: none; border-radius: 30px;
+    padding: 1rem 2.5rem; font-family: var(--font-family); font-size: 1rem; font-weight: 700;
+    letter-spacing: 1px; cursor: pointer; margin-top: 1rem;
     transition: transform 0.2s ease, box-shadow 0.2s ease;
     box-shadow: 0 5px 20px rgba(56, 189, 248, 0.2);
 }
+.start-button:hover { transform: scale(1.05); box-shadow: 0 8px 30px rgba(56, 189, 248, 0.3); }
 
-.start-button:hover {
-    transform: scale(1.05);
-    box-shadow: 0 8px 30px rgba(56, 189, 248, 0.3);
+
+/* --- NEW: Teacher Selection Screen --- */
+#teacher-select-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 3rem;
+    text-align: center;
 }
+#teacher-select-container h2 {
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: var(--accent-color);
+}
+.avatar-selection {
+    display: flex;
+    gap: 2.5rem;
+    justify-content: center;
+    flex-wrap: wrap; /* Allows wrapping on smaller screens */
+}
+.avatar-button {
+    background: var(--card-bg);
+    border: 2px solid var(--card-border);
+    border-radius: 20px;
+    padding: 1.5rem;
+    cursor: pointer;
+    backdrop-filter: blur(10px);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    width: 220px; /* Set a fixed width */
+}
+.avatar-button:hover {
+    transform: translateY(-10px);
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.3);
+    border-color: var(--accent-color);
+}
+.avatar-button:active {
+    transform: translateY(-2px) scale(0.98);
+}
+.avatar-button img {
+    width: 150px;
+    height: 150px;
+    border-radius: 50%; /* Make avatars circular */
+    object-fit: cover;
+    border: 3px solid var(--accent-color);
+}
+.avatar-button span {
+    font-size: 1.2rem;
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
 
 /* --- Responsive Layout --- */
 @media (max-width: 900px) {
-    .transformation-container {
-        flex-direction: column;
-        gap: 3rem;
-    }
-    .solution-bridge {
-        /* Puts the solution between the two panels on mobile */
-        order: 2;
-    }
-    .panel.before { order: 1; }
-    .panel.after { order: 3; }
-    }
+    #landing-container { flex-direction: column; gap: 3rem; }
+    .solution-bridge { order: 2; } .panel.before { order: 1; } .panel.after { order: 3; }
+    #teacher-select-container h2 { font-size: 2rem; }
+    .avatar-selection { flex-direction: column; }
+}
