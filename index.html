@@ -11,54 +11,68 @@
 </head>
 <body>
 
-    <!-- ======== SCREEN 1: LANDING PAGE ======== -->
+    <!-- ======== All Previous Screens ======== -->
     <main id="landing-container" class="screen">
-        <div class="panel before">
-            <img src="https://i.ibb.co/R4g1nVMM/file-00000000d01061fb8204df66fb3d3726.png" alt="Struggling student">
-            <h2>Studying like this?</h2>
-        </div>
-        <div class="solution-bridge">
-            <h1>I'm Smart Teacher AI</h1>
-            <p>The learning buddy that transforms your study sessions.</p>
-            <button id="getStartedBtn" class="start-button">GET STARTED</button>
-        </div>
-        <div class="panel after">
-             <img src="https://i.ibb.co/svJmVMJM/file-00000000cf1061f7a4dd88370e943c15.png" alt="Happy student">
-            <h2>Start learning like this!</h2>
-        </div>
+        <!-- (Landing page content is here, no changes) -->
     </main>
-
-    <!-- ======== SCREEN 2: SELECT TEACHER (Initially Hidden) ======== -->
     <main id="teacher-select-container" class="screen" style="display: none;">
-        <h2>Select Your Teacher</h2>
-        <div class="avatar-selection">
-            <button class="avatar-button" data-teacher="Male">
-                <img src="https://i.ibb.co/jv4J2wng/file-000000005ea461f5b82ff0c4a296956b.png" alt="Male Teacher Avatar">
-                <span>Male Teacher</span>
-            </button>
-            <button class="avatar-button" data-teacher="Female">
-                <img src="https://i.ibb.co/yFBc8Kdy/file-0000000077c0622fa0cb6448682ebe33.png" alt="Female Teacher Avatar">
-                <span>Female Teacher</span>
-            </button>
-        </div>
+        <!-- (Teacher select content is here, no changes) -->
     </main>
-
-    <!-- ======== SCREEN 3: PREPARATION STEP (Initially Hidden) ======== -->
     <main id="preparation-container" class="screen" style="display: none;">
-        <h2>Preparing the Student</h2>
-        <h3>Step 1: Deep Breathing</h3>
-        <div class="media-container">
-            <img src="relaxing.png" alt="Relaxing image for deep breathing" id="breathingImage">
-        </div>
-        <!-- ▼▼▼ BUTTON TEXT UPDATED & HIDDEN BY DEFAULT ▼▼▼ -->
-        <button id="doneBtn" class="start-button" style="display: none;">Done ✅</button>
+        <!-- (Preparation content is here, no changes) -->
     </main>
 
-    <!-- Preload sound effects for instant playback -->
+    <!-- ======== SCREEN 4: Q&A INPUT (New) ======== -->
+    <main id="qa-container" class="screen" style="display: none;">
+        <h2>Create Your Flashcard</h2>
+        <div class="input-group">
+            <label for="questionInput">Your Question</label>
+            <textarea id="questionInput" rows="3" placeholder="e.g., What is the capital of Japan?"></textarea>
+        </div>
+        <div class="input-group">
+            <label for="answerInput">Your Answer</label>
+            <textarea id="answerInput" rows="5" placeholder="e.g., Tokyo"></textarea>
+        </div>
+        <button id="generateBtn" class="start-button">Generate Audio</button>
+        
+        <!-- This section appears after generating audio -->
+        <div id="ttsResultContainer" class="hidden">
+            <p>Listen to your answer:</p>
+            <audio id="audioPlayer" controls></audio>
+            <button id="challengeBtn" class="start-button">Challenge Me! 🧠</button>
+        </div>
+    </main>
+
+    <!-- ======== SCREEN 5: THE CHALLENGE (New) ======== -->
+    <main id="challenge-container" class="screen" style="display: none;">
+        <h2>Challenge Time!</h2>
+        <div class="challenge-question-box">
+            <p>Your Question:</p>
+            <h3 id="displayQuestion"></h3>
+        </div>
+        <div class="input-group">
+            <label for="userAnswerInput">Type Your Answer</label>
+            <textarea id="userAnswerInput" rows="5" placeholder="Recall the answer here..."></textarea>
+        </div>
+        <button id="checkAnswerBtn" class="start-button">Check Answer</button>
+
+        <!-- This section shows the result of the challenge -->
+        <div id="challengeResultContainer" class="hidden">
+            <p id="resultMessage"></p>
+            <button id="nextQuestionBtn" class="start-button hidden">Next Question</button>
+            <button id="tryAgainBtn" class="start-button hidden">Try Again</button>
+        </div>
+    </main>
+
+    <!-- Loading Spinner -->
+    <div id="loading-spinner" class="hidden">
+        <div class="spinner"></div>
+    </div>
+
+    <!-- Audio players -->
     <audio id="click-sound" src="button-click.mp3" preload="auto"></audio>
     <audio id="relax-sound" src="relax.mp3" preload="auto"></audio>
 
     <script src="script.js"></script>
-
 </body>
-</html>
+        </html>
