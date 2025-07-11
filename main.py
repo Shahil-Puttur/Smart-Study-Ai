@@ -2,24 +2,24 @@ import os
 import uuid
 from flask import Flask, request, jsonify, send_from_directory
 from flask_cors import CORS
-# Import the official ElevenLabs library
-import elevenlabs
+# Import the correct client from the library
+from elevenlabs.client import ElevenLabs
 
 # --- The "Direct Line" API Key Setup ---
 # This is the fix. We are setting the API key directly in the code.
 # The library will now automatically use this key for all requests.
 # ▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼
 # PASTE YOUR NEW, REGENERATED ELEVENLABS API KEY HERE
-ELEVENLABS_API_KEY = "sk_6e8777037dcc1b235c817c3931f64419c996f028b83769e7" 
+API_KEY = "sk_6e8777037dcc1b235c817c3931f64419c996f028b83769e7" 
 # ▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲
 
-# Set the API key for the elevenlabs library
-if "REPLACE" in ELEVENLABS_API_KEY:
-    # This is a safety check to prevent deploying with the placeholder text.
+# --- Initialize the ElevenLabs Client ---
+# This is the correct, modern way to initialize the client, as you discovered.
+if "REPLACE" in API_KEY:
     raise SystemExit("❌ FATAL: You forgot to replace the placeholder API key in main.py!")
 else:
-    elevenlabs.set_api_key(ELEVENLABS_API_KEY)
-    print("✅ SUCCESS: ElevenLabs API Key has been set directly in the code.")
+    client = ElevenLabs(api_key=API_KEY)
+    print("✅ SUCCESS: ElevenLabs client initialized successfully.")
 
 
 # --- Basic Setup ---
@@ -50,12 +50,11 @@ def generate_single_tts_endpoint():
         voice_id = VOICE_ID_MALE if gender == 'male' else VOICE_ID_FEMALE
         print(f"1. Voice selected: {voice_id}")
         
-        # 2. Use the official library to generate the audio.
-        # This streams the audio data directly, which is very efficient.
-        print("2. Making API call to ElevenLabs via official library...")
-        audio_stream = elevenlabs.generate(
+        # 2. Use the initialized client to generate the audio.
+        print("2. Making API call to ElevenLabs via official client...")
+        audio_stream = client.generate(
             text=text,
-            voice=elevenlabs.Voice(voice_id=voice_id),
+            voice=voice_id,
             model="eleven_multilingual_v2"
         )
 
@@ -77,7 +76,6 @@ def generate_single_tts_endpoint():
         return jsonify({'audio_url': audio_url})
 
     except Exception as e:
-        # This will now give us a very specific error if ElevenLabs fails.
         print(f"❌ An unexpected error occurred: {e}")
         return jsonify({'error': f'A critical internal server error occurred: {str(e)}'}), 500
 
