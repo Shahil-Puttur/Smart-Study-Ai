@@ -1,6 +1,5 @@
 Flask
 gunicorn
 Flask-Cors
-torch==2.1.0
-torchaudio==2.1.0
-TTS==0.22.0
+pyttsx3
+pydub
