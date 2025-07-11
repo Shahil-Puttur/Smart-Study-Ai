@@ -1,5 +1,6 @@
 Flask
 gunicorn
 Flask-Cors
-pyttsx3
+elevenlabs==1.2.0
 pydub
+requests
