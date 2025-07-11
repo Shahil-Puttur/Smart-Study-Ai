@@ -1,23 +1,24 @@
-# Step 1: Start with a lean, official Python base image.
+# Step 1: Start with the same lean Python base.
 FROM python:3.10-slim
 
-# Step 2: Set the working directory inside our "computer-in-a-box".
+# Step 2: Set the working directory.
 WORKDIR /app
 
-# Step 3: Install the system-level dependencies.
-# pyttsx3 on Linux needs the eSpeak-NG engine to actually speak. This is the crucial step.
-RUN apt-get update && apt-get install -y espeak-ng ffmpeg
+# Step 3: Install ALL required system dependencies.
+# THIS IS THE FIX: We are now installing 'espeak-ng-data' which contains the actual voices.
+# We also add a cleanup step to keep the image small, which is a professional practice.
+RUN apt-get update && apt-get install -y espeak-ng espeak-ng-data ffmpeg \
+    && rm -rf /var/lib/apt/lists/*
 
-# Step 4: Copy the requirements file and install our Python libraries.
+# Step 4: Copy and install our Python libraries.
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Step 5: Copy the rest of our application code into the box.
+# Step 5: Copy the rest of our application code.
 COPY . .
 
-# Step 6: Tell the world that our application will be listening on port 10000.
+# Step 6: Expose the port our app will run on.
 EXPOSE 10000
 
-# Step 7: The command to run when the box starts.
-# This starts our Python server using gunicorn, making it ready for production.
+# Step 7: The command to run when the container starts.
 CMD ["gunicorn", "--bind", "0.0.0.0:10000", "main:app"]
