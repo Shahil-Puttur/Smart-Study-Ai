@@ -1,5 +1,4 @@
 Flask
 gunicorn
 Flask-Cors
-elevenlabs==1.2.0
-requests
+edge-tts
