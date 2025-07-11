@@ -1,14 +1,12 @@
-# Step 1: Start with the same lean Python base.
+# Step 1: Start with our lean Python base.
 FROM python:3.10-slim
 
 # Step 2: Set the working directory.
 WORKDIR /app
 
-# Step 3: Install ALL required system dependencies.
-# THIS IS THE FIX: We are now installing 'espeak-ng-data' which contains the actual voices.
-# We also add a cleanup step to keep the image small, which is a professional practice.
-RUN apt-get update && apt-get install -y espeak-ng espeak-ng-data ffmpeg \
-    && rm -rf /var/lib/apt/lists/*
+# Step 3: Install ONLY the system dependencies we need.
+# pydub requires ffmpeg to work with MP3 files.
+RUN apt-get update && apt-get install -y ffmpeg && rm -rf /var/lib/apt/lists/*
 
 # Step 4: Copy and install our Python libraries.
 COPY requirements.txt .
