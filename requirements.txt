@@ -2,5 +2,4 @@ Flask
 gunicorn
 Flask-Cors
 elevenlabs==1.2.0
-pydub
 requests
