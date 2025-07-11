@@ -1,47 +1,57 @@
 document.addEventListener('DOMContentLoaded', () => {
-
-    // (All state variables, selectors, and helper functions from the last version remain the same)
     let currentQuestion = '';
     let currentAnswer = '';
     let selectedTeacherGender = 'female';
     const BACKEND_URL = 'https://smart-study-ai.onrender.com';
 
     const getElement = (id) => document.getElementById(id);
-    // ... all other getElement calls
-    
-    // --- THIS IS THE NEW, BULLETPROOF TRANSITION FUNCTION ---
-    function transitionTo(nextScreenId) {
-        // Find the screen that is currently active and deactivate it
-        const currentActiveScreen = document.querySelector('.screen.active');
-        if (currentActiveScreen) {
-            currentActiveScreen.classList.remove('active');
-        }
-
-        // Find the target screen by its ID and activate it
-        const nextScreen = getElement(nextScreenId);
-        if (nextScreen) {
-            nextScreen.classList.add('active');
-        } else {
-            console.error(`Screen with ID '${nextScreenId}' not found!`);
-        }
-    }
-
-    // --- Core Application Flow (Now using the new transition function) ---
     const clickSound = getElement('click-sound');
     const relaxSound = getElement('relax-sound');
-    
-    // 1. Landing -> Teacher Select
     const getStartedBtn = getElement('getStartedBtn');
-    if (getStartedBtn) {
-        getStartedBtn.addEventListener('click', () => {
-            playClickSound();
-            transitionTo('teacher-select-container');
-        });
-    }
-    
-    // 2. Teacher Select -> Preparation
     const avatarButtons = document.querySelectorAll('.avatar-button');
     const doneBtn = getElement('doneBtn');
+    const breathingImage = getElement('breathingImage');
+    const generateBtn = getElement('generateBtn');
+    const challengeBtn = getElement('challengeBtn');
+    const checkAnswerBtn = getElement('checkAnswerBtn');
+    const tryAgainBtn = getElement('tryAgainBtn');
+    const nextQuestionBtn = getElement('nextQuestionBtn');
+    const loadingSpinner = getElement('loading-spinner');
+    const questionInput = getElement('questionInput');
+    const answerInput = getElement('answerInput');
+    const ttsResultContainer = getElement('ttsResultContainer');
+    const audioPlayer = getElement('audioPlayer');
+    const displayQuestion = getElement('displayQuestion');
+    const userAnswerInput = getElement('userAnswerInput');
+    const challengeResultContainer = getElement('challengeResultContainer');
+    const resultMessage = getElement('resultMessage');
+
+    if (breathingImage) {
+        breathingImage.src = `relaxing.png?t=${new Date().getTime()}`;
+    }
+
+    function playClickSound() {
+        if(clickSound) {
+            clickSound.currentTime = 0;
+            clickSound.play().catch(e => console.error(e));
+        }
+    }
+
+    document.querySelectorAll('button').forEach(button => {
+        if (!button.classList.contains('avatar-button')) {
+            button.addEventListener('click', playClickSound);
+        }
+    });
+
+    function transitionTo(nextScreenId) {
+        document.querySelector('.screen.active')?.classList.remove('active');
+        getElement(nextScreenId)?.classList.add('active');
+    }
+
+    if (getStartedBtn) {
+        getStartedBtn.addEventListener('click', () => transitionTo('teacher-select-container'));
+    }
+    
     avatarButtons.forEach(button => {
         button.addEventListener('click', () => {
             playClickSound();
@@ -59,45 +69,20 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
     
-    // 3. Preparation -> Q&A Input
     if (doneBtn) {
         doneBtn.addEventListener('click', () => transitionTo('qa-container'));
     }
 
-    // (The rest of the code for generating audio and handling challenges remains the same)
-    const qaContainer = getElement('qa-container');
-    const challengeContainer = getElement('challenge-container');
-    const questionInput = getElement('questionInput');
-    const answerInput = getElement('answerInput');
-    const generateBtn = getElement('generateBtn');
-    const ttsResultContainer = getElement('ttsResultContainer');
-    const audioPlayer = getElement('audioPlayer');
-    const challengeBtn = getElement('challengeBtn');
-    const displayQuestion = getElement('displayQuestion');
-    const userAnswerInput = getElement('userAnswerInput');
-    const checkAnswerBtn = getElement('checkAnswerBtn');
-    const challengeResultContainer = getElement('challengeResultContainer');
-    const resultMessage = getElement('resultMessage');
-    const nextQuestionBtn = getElement('nextQuestionBtn');
-    const tryAgainBtn = getElement('tryAgainBtn');
-    const loadingSpinner = getElement('loading-spinner');
-    
-    // Helper function to play click sound
-    function playClickSound() {
-        if(clickSound) {
-            clickSound.currentTime = 0;
-            clickSound.play().catch(e => console.error(e));
-        }
-    }
-    
-    // Generate Audio (The Orchestrator)
     async function getAudioUrl(text, gender) {
         const response = await fetch(`${BACKEND_URL}/generate-single-tts`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ text, gender })
         });
-        if (!response.ok) throw new Error('Backend failed to generate an audio clip.');
+        if (!response.ok) {
+            const error = await response.json();
+            throw new Error(error.error || 'Backend failed to generate an audio clip.');
+        }
         const data = await response.json();
         return data.audio_url;
     }
@@ -114,13 +99,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (generateBtn) {
         generateBtn.addEventListener('click', async () => {
-            playClickSound();
             const questionText = questionInput.value.trim();
             const answerText = answerInput.value.trim();
-            if (!questionText || !answerText) {
-                alert('Please enter both a question and an answer.');
-                return;
-            }
+            if (!questionText || !answerText) return alert('Please enter both a question and an answer.');
+            
             showLoadingSpinner(true);
             try {
                 const [questionUrl, answerUrl] = await Promise.all([
@@ -141,7 +123,6 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     if (challengeBtn) challengeBtn.addEventListener('click', () => {
-        playClickSound();
         displayQuestion.textContent = currentQuestion;
         userAnswerInput.value = '';
         challengeResultContainer.classList.add('hidden');
@@ -151,7 +132,6 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     if (checkAnswerBtn) checkAnswerBtn.addEventListener('click', () => {
-        playClickSound();
         const userAnswer = userAnswerInput.value.trim().toLowerCase();
         const correctAnswer = currentAnswer.trim().toLowerCase();
         challengeResultContainer.classList.remove('hidden');
@@ -169,14 +149,12 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     if (tryAgainBtn) tryAgainBtn.addEventListener('click', () => {
-        playClickSound();
         userAnswerInput.value = '';
         userAnswerInput.focus();
         challengeResultContainer.classList.add('hidden');
     });
 
     if (nextQuestionBtn) nextQuestionBtn.addEventListener('click', () => {
-        playClickSound();
         questionInput.value = '';
         answerInput.value = '';
         ttsResultContainer.classList.add('hidden');
