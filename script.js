@@ -1,53 +1,108 @@
 document.addEventListener('DOMContentLoaded', () => {
 
-    // (Keep all your existing state variables and element selectors from the last version)
-    // ...
+    // --- State Management & Backend URL ---
+    let currentQuestion = '';
+    let currentAnswer = '';
+    let selectedTeacherGender = 'female'; // Default gender
+    const BACKEND_URL = 'https://smart-study-ai.onrender.com';
 
-    // --- THE NEW AUDIO ORCHESTRATOR LOGIC ---
+    // --- Sound Effect Setup ---
+    const clickSound = document.getElementById('click-sound');
+    const relaxSound = document.getElementById('relax-sound');
+
+    // --- Element Selection (Robust Method) ---
+    const getElement = (id) => document.getElementById(id);
     
-    // Helper function to call our new backend endpoint
-    async function getAudioUrl(text, gender) {
-        const response = await fetch(`${BACKEND_URL}/generate-single-tts`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ text, gender })
-        });
-        if (!response.ok) {
-            throw new Error('Backend failed to generate an audio clip.');
+    const landingContainer = getElement('landing-container');
+    const teacherSelectContainer = getElement('teacher-select-container');
+    const preparationContainer = getElement('preparation-container');
+    const qaContainer = getElement('qa-container');
+    const challengeContainer = getElement('challenge-container');
+    const loadingSpinner = getElement('loading-spinner');
+
+    const getStartedBtn = getElement('getStartedBtn');
+    const avatarButtons = document.querySelectorAll('.avatar-button');
+    const doneBtn = getElement('doneBtn');
+    const breathingImage = getElement('breathingImage');
+    
+    const questionInput = getElement('questionInput');
+    const answerInput = getElement('answerInput');
+    const generateBtn = getElement('generateBtn');
+    
+    const ttsResultContainer = getElement('ttsResultContainer');
+    const audioPlayer = getElement('audioPlayer');
+    const challengeBtn = getElement('challengeBtn');
+
+    const displayQuestion = getElement('displayQuestion');
+    const userAnswerInput = getElement('userAnswerInput');
+    const checkAnswerBtn = getElement('checkAnswerBtn');
+    
+    const challengeResultContainer = getElement('challengeResultContainer');
+    const resultMessage = getElement('resultMessage');
+    const nextQuestionBtn = getElement('nextQuestionBtn');
+    const tryAgainBtn = getElement('tryAgainBtn');
+
+    // --- Initial Setup & Sound Listeners ---
+    if (breathingImage) {
+        breathingImage.src = `relaxing.png?t=${new Date().getTime()}`;
+    }
+
+    const allButtons = document.querySelectorAll('button');
+    allButtons.forEach(button => {
+        // We handle the relax sound separately
+        if (button.classList.contains('avatar-button')) return;
+        button.addEventListener('click', playClickSound);
+    });
+
+    function playClickSound() {
+        if (clickSound) {
+            clickSound.currentTime = 0;
+            clickSound.play().catch(e => console.error("Click sound failed:", e));
         }
-        const data = await response.json();
-        return data.audio_url;
     }
 
-    // Function to play the audio clips in sequence with perfect timing
-    function playPacedAudio(questionUrl, answerUrl) {
-        const questionAudio = new Audio(questionUrl);
-        const answerAudio = new Audio(answerUrl);
+    // --- Core Application Flow ---
 
-        console.log("Orchestrating audio playback...");
-
-        // Step 1: 1-second initial pause
-        setTimeout(() => {
-            console.log("Playing question...");
-            questionAudio.play();
-        }, 1000); // 1-second delay
-
-        // Step 2: When the question finishes, wait 2 seconds, then play the answer
-        questionAudio.addEventListener('ended', () => {
-            console.log("Question finished. Starting 2-second pause...");
-            setTimeout(() => {
-                console.log("Playing answer...");
-                answerAudio.play();
-            }, 2000); // 2-second delay
+    // 1. Landing -> Teacher Select
+    if (getStartedBtn) {
+        getStartedBtn.addEventListener('click', () => {
+            transitionTo(teacherSelectContainer, landingContainer);
         });
+    }
+    
+    // 2. Teacher Select -> Preparation
+    avatarButtons.forEach(button => {
+        button.addEventListener('click', () => {
+            playClickSound(); // Play the standard click sound immediately
+            selectedTeacherGender = button.dataset.teacher.toLowerCase();
+            
+            // Play relax sound after a delay
+            setTimeout(() => {
+                if(relaxSound) {
+                    relaxSound.currentTime = 0;
+                    relaxSound.play().catch(e => console.error("Relax sound failed:", e));
+                }
+            }, 2000);
 
-        // We can still show the final combined audio player for replay,
-        // but the initial playback is now controlled by us.
-        // For simplicity, we will just use the answer audio in the player for now.
-        audioPlayer.src = answerUrl; 
+            // Transition to the prep screen
+            transitionTo(preparationContainer, teacherSelectContainer);
+
+            // Show the "Done" button after the breathing exercise duration
+            setTimeout(() => {
+                if(doneBtn) {
+                    doneBtn.style.display = 'inline-block';
+                    doneBtn.classList.add('fade-in');
+                }
+            }, 8000);
+        });
+    });
+    
+    // 3. Preparation -> Q&A Input
+    if (doneBtn) {
+        doneBtn.addEventListener('click', () => transitionTo(qaContainer, preparationContainer));
     }
 
-    // --- Generate Audio Button Logic (Completely Rewritten) ---
+    // 4. Generate Audio (The Orchestrator)
     if (generateBtn) {
         generateBtn.addEventListener('click', async () => {
             const questionText = questionInput.value.trim();
@@ -61,35 +116,109 @@ document.addEventListener('DOMContentLoaded', () => {
             showLoadingSpinner(true);
 
             try {
-                console.log("Requesting Question and Answer audio from backend...");
-                
-                // Make two API calls concurrently for speed
                 const [questionUrl, answerUrl] = await Promise.all([
                     getAudioUrl(questionText, selectedTeacherGender),
                     getAudioUrl(answerText, selectedTeacherGender)
                 ]);
 
-                console.log("Audio URLs received:", { questionUrl, answerUrl });
-                
-                // The magic happens here:
                 playPacedAudio(questionUrl, answerUrl);
                 
-                // Store for the challenge
                 currentQuestion = questionText;
                 currentAnswer = answerText;
 
-                // Show the controls and challenge button
                 ttsResultContainer.classList.remove('hidden');
 
             } catch (error) {
                 console.error('Error during audio generation:', error);
-                alert(`Sorry, there was a critical error: ${error.message}`);
+                alert(`Sorry, a critical error occurred: ${error.message}`);
             } finally {
                 showLoadingSpinner(false);
             }
         });
     }
 
-    // (The rest of your JS file (challenge logic, helpers, other event listeners) can remain exactly the same)
-    // ...
+    // 5. Q&A -> Challenge
+    if (challengeBtn) {
+        challengeBtn.addEventListener('click', () => {
+            displayQuestion.textContent = currentQuestion;
+            userAnswerInput.value = '';
+            challengeResultContainer.classList.add('hidden');
+            nextQuestionBtn.classList.add('hidden');
+            tryAgainBtn.classList.add('hidden');
+            transitionTo(challengeContainer, qaContainer);
+        });
+    }
+
+    // 6. Challenge Answer Check
+    if (checkAnswerBtn) {
+        checkAnswerBtn.addEventListener('click', () => {
+            const userAnswer = userAnswerInput.value.trim().toLowerCase();
+            const correctAnswer = currentAnswer.trim().toLowerCase();
+            challengeResultContainer.classList.remove('hidden');
+            if (userAnswer === correctAnswer) {
+                resultMessage.textContent = "You're a genius! Perfect recall! 🎉";
+                resultMessage.className = 'success';
+                nextQuestionBtn.classList.remove('hidden');
+                tryAgainBtn.classList.add('hidden');
+            } else {
+                resultMessage.textContent = "Good try, you're almost there! Let's go again. 💪";
+                resultMessage.className = 'error';
+                tryAgainBtn.classList.remove('hidden');
+                nextQuestionBtn.classList.add('hidden');
+            }
+        });
+    }
+
+    // 7. Challenge -> Loop back
+    if (tryAgainBtn) tryAgainBtn.addEventListener('click', () => {
+        userAnswerInput.value = '';
+        userAnswerInput.focus();
+        challengeResultContainer.classList.add('hidden');
+    });
+
+    if (nextQuestionBtn) nextQuestionBtn.addEventListener('click', () => {
+        questionInput.value = '';
+        answerInput.value = '';
+        ttsResultContainer.classList.add('hidden');
+        transitionTo(qaContainer, challengeContainer);
+    });
+
+    // --- Helper Functions ---
+    
+    function showLoadingSpinner(show) {
+        if(loadingSpinner) loadingSpinner.classList.toggle('hidden', !show);
+    }
+
+    async function getAudioUrl(text, gender) {
+        const response = await fetch(`${BACKEND_URL}/generate-single-tts`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ text, gender })
+        });
+        if (!response.ok) throw new Error('Backend failed to generate an audio clip.');
+        const data = await response.json();
+        return data.audio_url;
+    }
+
+    function playPacedAudio(questionUrl, answerUrl) {
+        const questionAudio = new Audio(questionUrl);
+        const answerAudio = new Audio(answerUrl);
+        setTimeout(() => questionAudio.play(), 1000);
+        questionAudio.addEventListener('ended', () => {
+            setTimeout(() => answerAudio.play(), 2000);
+        });
+        audioPlayer.src = answerUrl;
+    }
+
+    // ▼▼▼ THIS IS THE FIXED TRANSITION FUNCTION ▼▼▼
+    function transitionTo(nextScreen, currentScreen) {
+        if (currentScreen) {
+            currentScreen.style.display = 'none'; // Hide current screen immediately
+        }
+        if (nextScreen) {
+            nextScreen.style.display = 'flex'; // Show next screen immediately
+            // Add fade-in effect
+            nextScreen.classList.remove('fade-out'); 
+        }
+    }
 });
