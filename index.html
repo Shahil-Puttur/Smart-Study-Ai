@@ -11,8 +11,8 @@
 </head>
 <body>
 
-    <!-- ======== SCREEN 1: LANDING PAGE ======== -->
-    <main id="landing-container" class="screen">
+    <!-- ▼▼▼ THIS IS THE FIX: The first screen now starts with the 'active' class ▼▼▼ -->
+    <main id="landing-container" class="screen active">
         <div class="panel before">
             <img src="https://i.ibb.co/R4g1nVMM/file-00000000d01061fb8204df66fb3d3726.png" alt="Struggling student">
             <h2>Studying like this?</h2>
@@ -28,8 +28,8 @@
         </div>
     </main>
 
-    <!-- ======== SCREEN 2: SELECT TEACHER (Initially Hidden) ======== -->
-    <main id="teacher-select-container" class="screen" style="display: none;">
+    <!-- ▼▼▼ THIS IS THE FIX: All other screens are just 'screen', they are hidden by default via CSS ▼▼▼ -->
+    <main id="teacher-select-container" class="screen">
         <h2>Select Your Teacher</h2>
         <div class="avatar-selection">
             <button class="avatar-button" data-teacher="Male">
@@ -43,18 +43,16 @@
         </div>
     </main>
 
-    <!-- ======== SCREEN 3: PREPARATION STEP (Initially Hidden) ======== -->
-    <main id="preparation-container" class="screen" style="display: none;">
+    <main id="preparation-container" class="screen">
         <h2>Preparing the Student</h2>
         <h3>Step 1: Deep Breathing</h3>
         <div class="media-container">
             <img src="relaxing.png" alt="Relaxing image for deep breathing" id="breathingImage">
         </div>
-        <button id="doneBtn" class="start-button" style="display: none;">Done ✅</button>
+        <button id="doneBtn" class="start-button" style="opacity: 0; pointer-events: none;">Done ✅</button>
     </main>
 
-    <!-- ======== SCREEN 4: Q&A INPUT (New) ======== -->
-    <main id="qa-container" class="screen" style="display: none;">
+    <main id="qa-container" class="screen">
         <h2>Create Your Flashcard</h2>
         <div class="input-group">
             <label for="questionInput">Your Question</label>
@@ -72,8 +70,7 @@
         </div>
     </main>
 
-    <!-- ======== SCREEN 5: THE CHALLENGE (New) ======== -->
-    <main id="challenge-container" class="screen" style="display: none;">
+    <main id="challenge-container" class="screen">
         <h2>Challenge Time!</h2>
         <div class="challenge-question-box">
             <p>Your Question:</p>
@@ -102,4 +99,4 @@
 
     <script src="script.js"></script>
 </body>
-</html>
+        </html>
