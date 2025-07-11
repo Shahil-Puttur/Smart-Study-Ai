@@ -16,58 +16,73 @@ os.makedirs(AUDIO_FOLDER, exist_ok=True)
 # --- Function to generate the professionally paced audio ---
 def create_paced_audio(text_question, text_answer, gender='female', unique_id='default'):
     try:
+        print("--- Starting Audio Generation ---")
+        
+        # Initialize the TTS Engine
+        print("1. Initializing pyttsx3 engine...")
         engine = pyttsx3.init()
+        
+        # Get available voices
         voices = engine.getProperty('voices')
-
+        if not voices:
+            print("❌ FATAL: No voices found by pyttsx3. Make sure espeak-ng is installed correctly.")
+            return None
+        
+        print(f"2. Found {len(voices)} voices. Selecting a voice for gender: {gender}...")
+        
         # Select voice based on gender
-        # Note: Voice IDs can vary on different systems. 'espeak' voices are predictable.
-        # We find voices that are English and match the desired gender.
         if gender == 'male':
-            # Try to find a generic male English voice
-            voice_id = next((v.id for v in voices if 'en' in v.lang and v.gender == 'male'), voices[0].id)
-        else:
-            # Default to a female voice
-            voice_id = next((v.id for v in voices if 'en' in v.lang and v.gender == 'female'), voices[1].id if len(voices) > 1 else voices[0].id)
+            voice_id = next((v.id for v in voices if 'english' in v.name.lower() and v.gender == 'male'), None)
+        else: # female
+            voice_id = next((v.id for v in voices if 'english' in v.name.lower() and v.gender == 'female'), None)
+        
+        # Fallback if no specific gendered voice is found
+        if voice_id is None:
+            print("⚠️ WARNING: No specific gendered voice found. Using default voice.")
+            voice_id = voices[0].id
         
         engine.setProperty('voice', voice_id)
+        print(f"3. Voice selected: {voice_id}")
 
-        # --- Generate Audio Segments ---
-        
-        # Segment 1: The fast question
-        engine.setProperty('rate', 175) # A bit faster than normal
+        # Generate Question Audio (Faster)
+        print("4. Generating Question audio...")
+        engine.setProperty('rate', 175)
         question_path = os.path.join(AUDIO_FOLDER, f"{unique_id}_question.wav")
         engine.save_to_file(text_question, question_path)
         engine.runAndWait()
 
-        # Segment 2: The slow answer
-        engine.setProperty('rate', 145) # Slower, more deliberate teacher pace
+        # Generate Answer Audio (Slower)
+        print("5. Generating Answer audio...")
+        engine.setProperty('rate', 145)
         answer_path = os.path.join(AUDIO_FOLDER, f"{unique_id}_answer.wav")
         engine.save_to_file(text_answer, answer_path)
         engine.runAndWait()
+        print("6. Raw audio files generated successfully.")
 
-        # --- Stitch Audio with Pydub ---
-        
-        silence_1_sec = AudioSegment.silent(duration=1000) # 1 second
-        silence_2_sec = AudioSegment.silent(duration=2000) # 2 seconds
+        # Stitch Audio with Pydub
+        print("7. Combining audio files with pauses...")
+        silence_1_sec = AudioSegment.silent(duration=1000)
+        silence_2_sec = AudioSegment.silent(duration=2000)
 
         question_audio = AudioSegment.from_wav(question_path)
         answer_audio = AudioSegment.from_wav(answer_path)
 
-        # Combine all parts: [1s pause] + [Question] + [2s pause] + [Answer]
         final_audio = silence_1_sec + question_audio + silence_2_sec + answer_audio
 
-        # Export the final combined audio
+        # Export the final combined audio to MP3
         final_output_path = os.path.join(AUDIO_FOLDER, f"{unique_id}_final.mp3")
         final_audio.export(final_output_path, format="mp3")
-        
+        print(f"8. Final MP3 exported to: {final_output_path}")
+
         # Clean up temporary WAV files
         os.remove(question_path)
         os.remove(answer_path)
+        print("9. Temporary files cleaned up. Process complete.")
 
         return final_output_path
 
     except Exception as e:
-        print(f"Error in audio creation: {e}")
+        print(f"❌ ERROR in audio creation pipeline: {e}")
         return None
 
 # --- The API Endpoint ---
@@ -77,7 +92,7 @@ def generate_tts():
         data = request.json
         question = data.get('question')
         answer = data.get('answer')
-        gender = data.get('gender', 'female') # Default to female if not provided
+        gender = data.get('gender', 'female')
 
         if not question or not answer:
             return jsonify({'error': 'Question and Answer are required'}), 400
@@ -90,13 +105,13 @@ def generate_tts():
             audio_url = f"{request.host_url}{final_path.replace(os.path.sep, '/')}"
             return jsonify({'audio_url': audio_url})
         else:
-            raise Exception("Failed to create paced audio file.")
+            raise Exception("create_paced_audio returned None.")
 
     except Exception as e:
-        print(f"An error occurred: {e}")
-        return jsonify({'error': 'Failed to process request'}), 500
+        print(f"An error occurred in the /generate-tts endpoint: {e}")
+        return jsonify({'error': 'Internal server error during audio generation.'}), 500
 
-# This allows Flask to serve the audio files from the static directory
+# --- Route to Serve Static Audio Files ---
 @app.route('/static/audio/<path:filename>')
 def serve_audio(filename):
     return send_from_directory(AUDIO_FOLDER, filename)
