@@ -1,17 +1,17 @@
-# Step 1: Start with a lean, official Python base image.
+# Step 1: Start with our lean Python base.
 FROM python:3.10-slim
 
-# Step 2: Set the working directory inside the container.
+# Step 2: Set the working directory.
 WORKDIR /app
 
-# Step 3: Install system dependencies. pydub is no longer used, but ffmpeg is good practice for audio.
+# Step 3: Install ffmpeg, which is a good utility for any audio work.
 RUN apt-get update && apt-get install -y ffmpeg && rm -rf /var/lib/apt/lists/*
 
-# Step 4: Copy the requirements file and install Python libraries.
+# Step 4: Copy and install our Python libraries.
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Step 5: Copy the rest of the application code.
+# Step 5: Copy the rest of our application code.
 COPY . .
 
 # Step 6: Expose the port our app will run on.
