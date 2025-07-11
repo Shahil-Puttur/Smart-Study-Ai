@@ -10,7 +10,7 @@ import elevenlabs
 # The library will now automatically use this key for all requests.
 # ▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼
 # PASTE YOUR NEW, REGENERATED ELEVENLABS API KEY HERE
-ELEVENLABS_API_KEY = "REPLACE_WITH_YOUR_NEW_ELEVENLABS_API_KEY" 
+ELEVENLABS_API_KEY = "sk_6e8777037dcc1b235c817c3931f64419c996f028b83769e7" 
 # ▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲
 
 # Set the API key for the elevenlabs library
