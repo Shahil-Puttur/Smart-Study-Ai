@@ -121,3 +121,78 @@ textarea:focus { outline: none; border-color: var(--accent-color); }
     #teacher-select-container h2, #preparation-container h2 { font-size: 2rem; }
     .avatar-selection { flex-direction: column; }
                       }
+/* --- ADD THIS TO THE BOTTOM OF YOUR CSS FILE --- */
+
+/* UI UPGRADE: Beautiful Audio Player Section */
+#ttsResultContainer {
+    width: 100%;
+    margin-top: 2rem;
+    padding: 2rem;
+    border: 2px solid var(--card-border);
+    background: var(--card-bg);
+    border-radius: 20px;
+    backdrop-filter: blur(10px);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1.5rem; /* Adjusted gap */
+    text-align: center;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+}
+
+#ttsResultContainer h3 {
+    font-size: 1.5rem;
+    color: var(--accent-color);
+    margin: 0;
+}
+
+#ttsResultContainer .start-button {
+    margin-top: 1rem;
+}
+
+/* NEW: Custom Audio Player Styles */
+#customAudioPlayer {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+    background-color: rgba(0,0,0,0.2);
+    padding: 0.75rem 1.5rem;
+    border-radius: 50px;
+    width: auto;
+}
+
+.play-again-button {
+    background-color: var(--accent-color);
+    color: var(--bg-color);
+    border: none;
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    display: grid;
+    place-items: center;
+    cursor: pointer;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    padding: 0; /* Remove default padding */
+}
+
+.play-again-button:hover {
+    transform: scale(1.1) rotate(30deg);
+}
+
+.play-again-button:active {
+    transform: scale(0.95);
+}
+
+.play-again-button svg {
+    width: 24px;
+    height: 24px;
+}
+
+#audioStatus {
+    font-size: 1rem;
+    font-weight: 500;
+    color: var(--text-secondary);
+    min-width: 120px; /* Give it space so layout doesn't jump */
+    text-align: left;
+    }
