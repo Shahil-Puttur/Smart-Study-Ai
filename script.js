@@ -101,11 +101,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const playAnswer = () => {
             audioStatus.textContent = "Playing Answer...";
-            // ▼▼▼ THIS IS THE FIX ▼▼▼
             setTimeout(() => {
                 answerAudio.play();
-            }, 300); // 300 milliseconds = 0.3 seconds
-            // ▲▲▲ END OF THE FIX ▲▲▲
+            }, 300);
         };
 
         const onPlaybackEnd = () => {
