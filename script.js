@@ -30,6 +30,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const resultMessage = getElement('resultMessage');
     const playAgainBtn = getElement('playAgainBtn');
     const audioStatus = getElement('audioStatus');
+    const practiceAgainBtn = getElement('practiceAgainBtn');
 
     if (breathingImage) {
         breathingImage.src = `relaxing.png?t=${new Date().getTime()}`;
@@ -51,8 +52,6 @@ document.addEventListener('DOMContentLoaded', () => {
         const nextScreen = getElement(nextScreenId);
         if (nextScreen) {
             nextScreen.classList.add('active');
-        } else {
-            console.error(`Screen with ID '${nextScreenId}' not found!`);
         }
     }
 
@@ -102,9 +101,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const playAnswer = () => {
             audioStatus.textContent = "Playing Answer...";
+            // ▼▼▼ THIS IS THE FIX ▼▼▼
             setTimeout(() => {
                 answerAudio.play();
-            }, 1000); // 1-second pause
+            }, 300); // 300 milliseconds = 0.3 seconds
+            // ▲▲▲ END OF THE FIX ▲▲▲
         };
 
         const onPlaybackEnd = () => {
@@ -169,6 +170,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 resultMessage.className = 'success';
                 nextQuestionBtn.classList.remove('hidden');
                 tryAgainBtn.classList.add('hidden');
+                practiceAgainBtn.classList.add('hidden');
                 if (congratsSound) {
                     congratsSound.currentTime = 0;
                     congratsSound.play();
@@ -177,32 +179,47 @@ document.addEventListener('DOMContentLoaded', () => {
                 resultMessage.textContent = "Good try, you're almost there! Let's go again. 💪";
                 resultMessage.className = 'error';
                 tryAgainBtn.classList.remove('hidden');
+                practiceAgainBtn.classList.remove('hidden');
                 nextQuestionBtn.classList.add('hidden');
             }
         });
     }
 
-    if (challengeBtn) challengeBtn.addEventListener('click', () => {
-        displayQuestion.textContent = currentQuestion;
-        userAnswerInput.value = '';
-        challengeResultContainer.classList.add('hidden');
-        nextQuestionBtn.classList.add('hidden');
-        tryAgainBtn.classList.add('hidden');
-        transitionTo('challenge-container');
-    });
+    if (challengeBtn) {
+        challengeBtn.addEventListener('click', () => {
+            displayQuestion.textContent = currentQuestion;
+            userAnswerInput.value = '';
+            challengeResultContainer.classList.add('hidden');
+            nextQuestionBtn.classList.add('hidden');
+            tryAgainBtn.classList.add('hidden');
+            practiceAgainBtn.classList.add('hidden');
+            transitionTo('challenge-container');
+        });
+    }
 
-    if (tryAgainBtn) tryAgainBtn.addEventListener('click', () => {
-        userAnswerInput.value = '';
-        userAnswerInput.focus();
-        challengeResultContainer.classList.add('hidden');
-    });
+    if (tryAgainBtn) {
+        tryAgainBtn.addEventListener('click', () => {
+            userAnswerInput.value = '';
+            userAnswerInput.focus();
+            challengeResultContainer.classList.add('hidden');
+        });
+    }
 
-    if (nextQuestionBtn) nextQuestionBtn.addEventListener('click', () => {
-        questionInput.value = '';
-        answerInput.value = '';
-        ttsResultContainer.classList.add('hidden');
-        transitionTo('qa-container');
-    });
+    if (practiceAgainBtn) {
+        practiceAgainBtn.addEventListener('click', () => {
+            challengeResultContainer.classList.add('hidden');
+            transitionTo('qa-container');
+        });
+    }
+
+    if (nextQuestionBtn) {
+        nextQuestionBtn.addEventListener('click', () => {
+            questionInput.value = '';
+            answerInput.value = '';
+            ttsResultContainer.classList.add('hidden');
+            transitionTo('qa-container');
+        });
+    }
     
     function showLoadingSpinner(show) {
         if(loadingSpinner) loadingSpinner.classList.toggle('hidden', !show);
