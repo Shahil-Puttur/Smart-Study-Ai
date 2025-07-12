@@ -9,7 +9,7 @@ import edge_tts
 app = Flask(__name__)
 CORS(app)
 
-# --- UPGRADE: Indian English Voices ---
+# --- Indian English Voices ---
 VOICE_MALE = "en-IN-PrabhatNeural"
 VOICE_FEMALE = "en-IN-NeerjaNeural"
 
