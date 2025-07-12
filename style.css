@@ -120,4 +120,4 @@ textarea:focus { outline: none; border-color: var(--accent-color); }
     .solution-bridge { order: 2; } .panel.before { order: 1; } .panel.after { order: 3; }
     #teacher-select-container h2, #preparation-container h2 { font-size: 2rem; }
     .avatar-selection { flex-direction: column; }
-                                                                                                                    }
+                      }
