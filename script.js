@@ -1,4 +1,5 @@
 document.addEventListener('DOMContentLoaded', () => {
+
     let currentQuestion = '';
     let currentAnswer = '';
     let selectedTeacherGender = 'female';
@@ -7,6 +8,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const getElement = (id) => document.getElementById(id);
     const clickSound = getElement('click-sound');
     const relaxSound = getElement('relax-sound');
+    const congratsSound = getElement('congrats-sound');
     const getStartedBtn = getElement('getStartedBtn');
     const avatarButtons = document.querySelectorAll('.avatar-button');
     const doneBtn = getElement('doneBtn');
@@ -36,11 +38,9 @@ document.addEventListener('DOMContentLoaded', () => {
             clickSound.play().catch(e => console.error(e));
         }
     }
-
+    
     document.querySelectorAll('button').forEach(button => {
-        if (!button.classList.contains('avatar-button')) {
-            button.addEventListener('click', playClickSound);
-        }
+        button.addEventListener('click', playClickSound);
     });
 
     function transitionTo(nextScreenId) {
@@ -54,7 +54,6 @@ document.addEventListener('DOMContentLoaded', () => {
     
     avatarButtons.forEach(button => {
         button.addEventListener('click', () => {
-            playClickSound();
             selectedTeacherGender = button.dataset.teacher.toLowerCase();
             setTimeout(() => {
                 if(relaxSound) relaxSound.play().catch(e => console.error(e));
@@ -73,30 +72,6 @@ document.addEventListener('DOMContentLoaded', () => {
         doneBtn.addEventListener('click', () => transitionTo('qa-container'));
     }
 
-    async function getAudioUrl(text, gender) {
-        const response = await fetch(`${BACKEND_URL}/generate-single-tts`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ text, gender })
-        });
-        if (!response.ok) {
-            const error = await response.json();
-            throw new Error(error.error || 'Backend failed to generate an audio clip.');
-        }
-        const data = await response.json();
-        return data.audio_url;
-    }
-
-    function playPacedAudio(questionUrl, answerUrl) {
-        const questionAudio = new Audio(questionUrl);
-        const answerAudio = new Audio(answerUrl);
-        setTimeout(() => questionAudio.play(), 1000);
-        questionAudio.addEventListener('ended', () => {
-            setTimeout(() => answerAudio.play(), 2000);
-        });
-        audioPlayer.src = answerUrl;
-    }
-
     if (generateBtn) {
         generateBtn.addEventListener('click', async () => {
             const questionText = questionInput.value.trim();
@@ -105,19 +80,58 @@ document.addEventListener('DOMContentLoaded', () => {
             
             showLoadingSpinner(true);
             try {
-                const [questionUrl, answerUrl] = await Promise.all([
-                    getAudioUrl(questionText, selectedTeacherGender),
-                    getAudioUrl(answerText, selectedTeacherGender)
-                ]);
-                playPacedAudio(questionUrl, answerUrl);
+                const response = await fetch(`${BACKEND_URL}/generate-paced-tts`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ 
+                        question: questionText, 
+                        answer: answerText, 
+                        gender: selectedTeacherGender 
+                    })
+                });
+
+                if (!response.ok) {
+                    const error = await response.json();
+                    throw new Error(error.error || 'Backend failed to generate audio.');
+                }
+                
+                const data = await response.json();
+                
+                audioPlayer.src = data.audio_url;
+                
                 currentQuestion = questionText;
                 currentAnswer = answerText;
+                
                 ttsResultContainer.classList.remove('hidden');
+
             } catch (error) {
                 console.error('Error during audio generation:', error);
                 alert(`Sorry, a critical error occurred: ${error.message}`);
             } finally {
                 showLoadingSpinner(false);
+            }
+        });
+    }
+
+    if (checkAnswerBtn) {
+        checkAnswerBtn.addEventListener('click', () => {
+            const userAnswer = userAnswerInput.value.trim().toLowerCase();
+            const correctAnswer = currentAnswer.trim().toLowerCase();
+            challengeResultContainer.classList.remove('hidden');
+            if (userAnswer === correctAnswer) {
+                resultMessage.textContent = "You're a genius! Perfect recall! 🎉";
+                resultMessage.className = 'success';
+                nextQuestionBtn.classList.remove('hidden');
+                tryAgainBtn.classList.add('hidden');
+                if (congratsSound) {
+                    congratsSound.currentTime = 0;
+                    congratsSound.play();
+                }
+            } else {
+                resultMessage.textContent = "Good try, you're almost there! Let's go again. 💪";
+                resultMessage.className = 'error';
+                tryAgainBtn.classList.remove('hidden');
+                nextQuestionBtn.classList.add('hidden');
             }
         });
     }
@@ -129,23 +143,6 @@ document.addEventListener('DOMContentLoaded', () => {
         nextQuestionBtn.classList.add('hidden');
         tryAgainBtn.classList.add('hidden');
         transitionTo('challenge-container');
-    });
-
-    if (checkAnswerBtn) checkAnswerBtn.addEventListener('click', () => {
-        const userAnswer = userAnswerInput.value.trim().toLowerCase();
-        const correctAnswer = currentAnswer.trim().toLowerCase();
-        challengeResultContainer.classList.remove('hidden');
-        if (userAnswer === correctAnswer) {
-            resultMessage.textContent = "You're a genius! Perfect recall! 🎉";
-            resultMessage.className = 'success';
-            nextQuestionBtn.classList.remove('hidden');
-            tryAgainBtn.classList.add('hidden');
-        } else {
-            resultMessage.textContent = "Good try, you're almost there! Let's go again. 💪";
-            resultMessage.className = 'error';
-            tryAgainBtn.classList.remove('hidden');
-            nextQuestionBtn.classList.add('hidden');
-        }
     });
 
     if (tryAgainBtn) tryAgainBtn.addEventListener('click', () => {
