@@ -72,6 +72,46 @@ document.addEventListener('DOMContentLoaded', () => {
         doneBtn.addEventListener('click', () => transitionTo('qa-container'));
     }
 
+    async function getAudioUrl(text, gender) {
+        const response = await fetch(`${BACKEND_URL}/generate-single-tts`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ text, gender })
+        });
+        if (!response.ok) {
+            const error = await response.json();
+            throw new Error(error.error || 'Backend failed to generate an audio clip.');
+        }
+        const data = await response.json();
+        return data.audio_url;
+    }
+
+    function playPacedAudio(questionUrl, answerUrl) {
+        const questionAudio = new Audio(questionUrl);
+        const answerAudio = new Audio(answerUrl);
+
+        // We can create a "playlist" by chaining the 'ended' event.
+        const playAnswer = () => {
+            setTimeout(() => {
+                console.log("Playing answer...");
+                answerAudio.play();
+            }, 2000); // 2-second pause after question
+        };
+
+        questionAudio.addEventListener('ended', playAnswer);
+
+        // This is a dummy audio element that does nothing, just for looks.
+        // We will create our own "fake" audio player that controls the real playback.
+        // For now, let's just use the answer URL in the player for replay.
+        audioPlayer.src = answerUrl;
+        
+        // Start the sequence after a 1-second initial pause.
+        setTimeout(() => {
+            console.log("Playing question...");
+            questionAudio.play();
+        }, 1000);
+    }
+
     if (generateBtn) {
         generateBtn.addEventListener('click', async () => {
             const questionText = questionInput.value.trim();
@@ -80,23 +120,27 @@ document.addEventListener('DOMContentLoaded', () => {
             
             showLoadingSpinner(true);
             try {
+                // The new combined text for the single API call
+                const combinedText = `${questionText} ... ${answerText}`;
+
                 const response = await fetch(`${BACKEND_URL}/generate-paced-tts`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ 
-                        question: questionText, 
-                        answer: answerText, 
-                        gender: selectedTeacherGender 
+                    body: JSON.stringify({
+                        question: questionText,
+                        answer: answerText,
+                        gender: selectedTeacherGender
                     })
                 });
 
                 if (!response.ok) {
                     const error = await response.json();
-                    throw new Error(error.error || 'Backend failed to generate audio.');
+                    throw new Error(error.error || 'Backend failed to generate the paced audio.');
                 }
                 
                 const data = await response.json();
                 
+                // Set the single, perfect audio file to the player.
                 audioPlayer.src = data.audio_url;
                 
                 currentQuestion = questionText;
