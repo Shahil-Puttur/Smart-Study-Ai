@@ -3,54 +3,51 @@ import uuid
 import asyncio
 from flask import Flask, request, jsonify, send_from_directory
 from flask_cors import CORS
-# Import the edge-tts library
 import edge_tts
 
 # --- Basic Setup ---
 app = Flask(__name__)
 CORS(app)
 
-# --- Define High-Quality Voice Names for Edge TTS ---
-# These are standard, high-quality neural voices.
-VOICE_MALE = "en-US-GuyNeural"
-VOICE_FEMALE = "en-US-JennyNeural"
+# --- UPGRADE: Indian English Voices ---
+VOICE_MALE = "en-IN-PrabhatNeural"
+VOICE_FEMALE = "en-IN-NeerjaNeural"
 
 # --- Folder for Storing Audio Files ---
 AUDIO_FOLDER = os.path.join('static', 'audio')
 os.makedirs(AUDIO_FOLDER, exist_ok=True)
 
-# --- Asynchronous function to generate and save speech ---
-# This is where the core logic happens. It's 'async' because edge-tts is.
-async def generate_and_save_speech(text, voice, output_path):
-    print(f"Generating audio with voice: {voice}")
-    communicate = edge_tts.Communicate(text, voice)
+# --- Asynchronous function to generate speech using SSML ---
+async def generate_paced_speech(question, answer, voice, output_path):
+    # This SSML string commands the AI to read the question, pause for 2 seconds, then read the answer.
+    ssml_text = f"<speak><p>{question}</p><break time='2s'/><p>{answer}</p></speak>"
+    
+    print(f"Generating SSML audio with voice: {voice}")
+    communicate = edge_tts.Communicate(ssml_text, voice)
     await communicate.save(output_path)
-    print(f"✅ Audio file saved to {output_path}")
+    print(f"✅ Paced audio file saved to {output_path}")
 
-# --- THE LEAN API ENDPOINT ---
-# This is a standard Flask route, which is synchronous.
-@app.route('/generate-single-tts', methods=['POST'])
-def generate_single_tts_endpoint():
+# --- THE FINAL API ENDPOINT ---
+@app.route('/generate-paced-tts', methods=['POST'])
+def generate_paced_tts_endpoint():
     try:
         data = request.json
-        text = data.get('text')
+        question = data.get('question')
+        answer = data.get('answer')
         gender = data.get('gender', 'female')
 
-        if not text:
-            return jsonify({'error': 'Text is required'}), 400
+        if not question or not answer:
+            return jsonify({'error': 'Question and Answer are required'}), 400
 
-        print(f"--- Received request for gender: {gender} ---")
+        print(f"--- Received request for paced audio (gender: {gender}) ---")
         
         voice_name = VOICE_MALE if gender == 'male' else VOICE_FEMALE
         unique_filename = f"{uuid.uuid4()}.mp3"
         output_path = os.path.join(AUDIO_FOLDER, unique_filename)
 
-        # This is the crucial bridge: We run our async function from our sync route.
-        # This is the professional way to handle this.
-        print("Bridging to asyncio to run edge-tts...")
-        asyncio.run(generate_and_save_speech(text, voice_name, output_path))
+        # Run the asynchronous generation function
+        asyncio.run(generate_paced_speech(question, answer, voice_name, output_path))
         
-        # Construct the full URL to send back to the frontend
         audio_url = f"{request.host_url}{output_path.replace(os.path.sep, '/')}"
         return jsonify({'audio_url': audio_url})
 
