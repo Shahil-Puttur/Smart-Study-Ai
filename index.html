@@ -10,11 +10,27 @@
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
 </head>
 <body>
-    <!-- (All previous screens remain the same) -->
-    <main id="landing-container" class="screen active">...</main>
-    <main id="teacher-select-container" class="screen">...</main>
-    <main id="preparation-container" class="screen">...</main>
-    
+
+    <main id="landing-container" class="screen active">
+        <div class="panel before"><img src="https://i.ibb.co/R4g1nVMM/file-00000000d01061fb8204df66fb3d3726.png" alt="Struggling student"><h2>Studying like this?</h2></div>
+        <div class="solution-bridge"><h1>I'm Smart Teacher AI</h1><p>The learning buddy that transforms your study sessions.</p><button id="getStartedBtn" class="start-button">GET STARTED</button></div>
+        <div class="panel after"><img src="https://i.ibb.co/svJmVMJM/file-00000000cf1061f7a4dd88370e943c15.png" alt="Happy student"><h2>Start learning like this!</h2></div>
+    </main>
+
+    <main id="teacher-select-container" class="screen">
+        <h2>Select Your Teacher</h2>
+        <div class="avatar-selection">
+            <button class="avatar-button" data-teacher="Male"><img src="https://i.ibb.co/jv4J2wng/file-000000005ea461f5b82ff0c4a296956b.png" alt="Male Teacher Avatar"><span>Male Teacher</span></button>
+            <button class="avatar-button" data-teacher="Female"><img src="https://i.ibb.co/yFBc8Kdy/file-0000000077c0622fa0cb6448682ebe33.png" alt="Female Teacher Avatar"><span>Female Teacher</span></button>
+        </div>
+    </main>
+
+    <main id="preparation-container" class="screen">
+        <h2>Preparing the Student</h2><h3>Step 1: Deep Breathing</h3>
+        <div class="media-container"><img src="relaxing.png" alt="Relaxing image for deep breathing" id="breathingImage"></div>
+        <button id="doneBtn" class="start-button" style="opacity: 0; pointer-events: none;">Done ✅</button>
+    </main>
+
     <main id="qa-container" class="screen">
         <h2>Create Your Flashcard</h2>
         <div class="input-group"><label for="questionInput">Your Question</label><textarea id="questionInput" rows="3" placeholder="e.g., What is the capital of India?"></textarea></div>
@@ -23,26 +39,26 @@
         
         <div id="ttsResultContainer" class="hidden">
             <h3>Your Audio is Ready!</h3>
-            
-            <!-- ▼▼▼ THIS IS THE NEW, CUSTOM AUDIO PLAYER UI ▼▼▼ -->
             <div id="customAudioPlayer">
                 <button id="playAgainBtn" class="play-again-button">
-                    <!-- SVG for a professional replay icon -->
                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="24px" height="24px"><path d="M12 5V1L7 6l5 5V7c3.31 0 6 2.69 6 6s-2.69 6-6 6-6-2.69-6-6H4c0 4.42 3.58 8 8 8s8-3.58 8-8-3.58-8-8-8z"/></svg>
                 </button>
                 <span id="audioStatus">Click to play again</span>
             </div>
-            <!-- ▲▲▲ END OF THE NEW UI ▲▲▲ -->
-            
             <button id="challengeBtn" class="start-button">Challenge Me! 🧠</button>
         </div>
     </main>
-    
-    <main id="challenge-container" class="screen">...</main>
-    
+
+    <main id="challenge-container" class="screen">
+        <h2>Challenge Time!</h2>
+        <div class="challenge-question-box"><p>Your Question:</p><h3 id="displayQuestion"></h3></div>
+        <div class="input-group"><label for="userAnswerInput">Type Your Answer</label><textarea id="userAnswerInput" rows="5" placeholder="Recall the answer here..."></textarea></div>
+        <button id="checkAnswerBtn" class="start-button">Check Answer</button>
+        <div id="challengeResultContainer" class="hidden"><p id="resultMessage"></p><button id="nextQuestionBtn" class="start-button hidden">Next Question</button><button id="tryAgainBtn" class="start-button hidden">Try Again</button></div>
+    </main>
+
     <div id="loading-spinner" class="hidden"><div class="spinner"></div></div>
-    
-    <!-- Audio players (now invisible to the user) -->
+
     <audio id="click-sound" src="button-click.mp3" preload="auto"></audio>
     <audio id="relax-sound" src="relax.mp3" preload="auto"></audio>
     <audio id="congrats-sound" src="congrats.mp3" preload="auto"></audio>
