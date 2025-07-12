@@ -4,7 +4,7 @@ FROM python:3.10-slim
 # Step 2: Set the working directory.
 WORKDIR /app
 
-# Step 3: Install ffmpeg, which is a good utility for any audio work.
+# Step 3: Install ffmpeg, a good utility for any audio work.
 RUN apt-get update && apt-get install -y ffmpeg && rm -rf /var/lib/apt/lists/*
 
 # Step 4: Copy and install our Python libraries.
